@@ -2,5 +2,17 @@ spring:
   application:
     name: restaurant
 
+  profiles:
+    active: local
+
   datasource:
     driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/restaurant_db
+    username: restaurant
+    password: restaurant123
+
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:0RGrUlA27pl/5EiSNW2eD22QjMuD2QV+QeBQIYlvX/o=}
+    expiration-ms: ${JWT_EXPIRATION_MS:3600000}
