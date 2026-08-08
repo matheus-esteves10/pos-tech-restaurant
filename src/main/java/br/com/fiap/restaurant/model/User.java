@@ -3,14 +3,7 @@ package br.com.fiap.restaurant.model;
 import br.com.fiap.restaurant.common.audit.Address;
 import br.com.fiap.restaurant.common.audit.Audit;
 import br.com.fiap.restaurant.model.enums.UserType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -33,6 +26,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Builder
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
