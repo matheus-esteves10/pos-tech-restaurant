@@ -25,10 +25,21 @@ public class UserMapper {
     }
 
     public void updateEntity(User user, UpdateUserRequest request) {
-        user.setName(request.name());
-        user.setEmail(request.email());
-        user.setPhone(request.phone());
-        user.setAddress(toAddress(request.address()));
+        if (request.email() != null) {
+            user.setEmail(request.email());
+        }
+        if (request.login() != null) {
+            user.setLogin(request.login());
+        }
+        if (request.phone() != null) {
+            user.setPhone(request.phone());
+        }
+        if (request.password() != null) {
+            user.setPassword(request.password());
+        }
+        if (request.address() != null) {
+            user.setAddress(mergeAddress(user.getAddress(), request.address()));
+        }
     }
 
     public UserResponse toResponse(User user) {
@@ -57,6 +68,36 @@ public class UserMapper {
                 .zipCode(request.zipCode())
                 .complement(request.complement())
                 .build();
+    }
+
+    private Address mergeAddress(Address currentAddress, AddressRequest request) {
+        if (currentAddress == null) {
+            return toAddress(request);
+        }
+
+        if (request.street() != null) {
+            currentAddress.setStreet(request.street());
+        }
+        if (request.number() != null) {
+            currentAddress.setNumber(request.number());
+        }
+        if (request.neighborhood() != null) {
+            currentAddress.setNeighborhood(request.neighborhood());
+        }
+        if (request.city() != null) {
+            currentAddress.setCity(request.city());
+        }
+        if (request.state() != null) {
+            currentAddress.setState(request.state());
+        }
+        if (request.zipCode() != null) {
+            currentAddress.setZipCode(request.zipCode());
+        }
+        if (request.complement() != null) {
+            currentAddress.setComplement(request.complement());
+        }
+
+        return currentAddress;
     }
 
     private AddressResponse toAddressResponse(Address address) {

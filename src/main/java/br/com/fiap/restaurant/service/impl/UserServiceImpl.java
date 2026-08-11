@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-        validateUniquenessForUpdate(user, request.email(), request.phone());
+        validateUniquenessForUpdate(user, request.email(), request.login(), request.phone());
 
         userMapper.updateEntity(user, request);
 
@@ -63,7 +63,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-        userRepository.delete(user);
+        user.setEnabled(false);
+        userRepository.save(user);
     }
 
     private void ensureSelf(Long id, User authenticatedUser) {
@@ -84,9 +85,12 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void validateUniquenessForUpdate(User currentUser, String newEmail, String newPhone) {
-        if (!newEmail.equalsIgnoreCase(currentUser.getEmail()) && userRepository.existsByEmail(newEmail)) {
+    private void validateUniquenessForUpdate(User currentUser, String newEmail, String newLogin, String newPhone) {
+        if (newEmail != null && !newEmail.equalsIgnoreCase(currentUser.getEmail()) && userRepository.existsByEmail(newEmail)) {
             throw new DuplicateResourceException("Email already in use: " + newEmail);
+        }
+        if (newLogin != null && !newLogin.equalsIgnoreCase(currentUser.getLogin()) && userRepository.existsByLogin(newLogin)) {
+            throw new DuplicateResourceException("Login already in use: " + newLogin);
         }
         if (newPhone != null && !newPhone.isBlank() && !newPhone.equals(currentUser.getPhone())
                 && userRepository.existsByPhone(newPhone)) {
