@@ -1,5 +1,6 @@
 package br.com.fiap.restaurant.security.jwt;
 
+import br.com.fiap.restaurant.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -26,10 +27,18 @@ public class JwtService {
 
     public String generateToken(UserDetails userDetails) {
         Instant now = Instant.now();
-        return Jwts.builder()
+        var tokenBuilder = Jwts.builder()
                 .subject(userDetails.getUsername())
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plusMillis(expirationMs)))
+                .expiration(Date.from(now.plusMillis(expirationMs)));
+
+        if (userDetails instanceof User user) {
+            tokenBuilder
+                    .claim("id", user.getId())
+                    .claim("userType", user.getUserType().name());
+        }
+
+        return tokenBuilder
                 .signWith(signingKey())
                 .compact();
     }
