@@ -17,6 +17,7 @@ import lombok.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.List;
 @Data
 @Builder
 @Table(name = "users")
+@EntityListeners(AuditingEntityListener.class)
 public class User implements UserDetails {
 
     @Id
@@ -71,7 +73,16 @@ public class User implements UserDetails {
     private Address address;
 
     @Embedded
-    private Audit audit;
+    @Builder.Default
+    private Audit audit = new Audit();
+
+    @PrePersist
+    @PreUpdate
+    private void ensureAudit() {
+        if (audit == null) {
+            audit = new Audit();
+        }
+    }
 
     @Override
     @NonNull

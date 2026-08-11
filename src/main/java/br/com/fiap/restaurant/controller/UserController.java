@@ -10,11 +10,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -31,22 +32,25 @@ public class UserController {
     @Operation(summary = "Create a new user")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse createUser(@Valid @RequestBody CreateUserRequest request) {
-        return userService.createUser(request);
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
+        final UserResponse userResponse = userService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
 
+    //todo fazer get do usuario pelo jwt
     @Operation(summary = "Update the authenticated user's own account")
-    @PutMapping("/{id}")
-    public UserResponse updateUser(@PathVariable Long id,
-                                    @Valid @RequestBody UpdateUserRequest request,
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request,
                                     @AuthenticationPrincipal User authenticatedUser) {
-        return userService.updateUser(id, request, authenticatedUser);
+        final UserResponse userResponse = userService.updateUser(id, request, authenticatedUser);
+        return ResponseEntity.ok().body(userResponse);
     }
 
     @Operation(summary = "Delete the authenticated user's own account")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable Long id, @AuthenticationPrincipal User authenticatedUser) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id, @AuthenticationPrincipal User authenticatedUser) {
         userService.deleteUser(id, authenticatedUser);
+        return ResponseEntity.noContent().build();
     }
 }
