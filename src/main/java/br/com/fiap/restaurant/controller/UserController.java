@@ -37,20 +37,19 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
 
-    //todo fazer get do usuario pelo jwt
     @Operation(summary = "Update the authenticated user's own account")
-    @PatchMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserRequest request,
+    @PatchMapping("/me")
+    public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UpdateUserRequest request,
                                     @AuthenticationPrincipal User authenticatedUser) {
-        final UserResponse userResponse = userService.updateUser(id, request, authenticatedUser);
+        final UserResponse userResponse = userService.updateUser(request, authenticatedUser);
         return ResponseEntity.ok().body(userResponse);
     }
 
     @Operation(summary = "Delete the authenticated user's own account")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id, @AuthenticationPrincipal User authenticatedUser) {
-        userService.deleteUser(id, authenticatedUser);
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal User authenticatedUser) {
+        userService.deleteUser(authenticatedUser);
         return ResponseEntity.noContent().build();
     }
 }

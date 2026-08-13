@@ -9,7 +9,7 @@ public interface UserService {
 
     UserResponse createUser(CreateUserRequest request);
 
-    UserResponse updateUser(Long id, UpdateUserRequest request, User authenticatedUser);
+    UserResponse updateUser(UpdateUserRequest request, User authenticatedUser);
 
-    void deleteUser(Long id, User authenticatedUser);
+    void deleteUser(User authenticatedUser);
 }
