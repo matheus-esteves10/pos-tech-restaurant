@@ -2,6 +2,8 @@ package br.com.fiap.restaurant.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
+import br.com.fiap.restaurant.exception.DatabaseConstraintViolationException;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -24,7 +26,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex, HttpServletRequest request) {
-        return build(HttpStatus.CONFLICT, ex.getMessage(), request, null);
+        DatabaseConstraintViolationException mapped = new DatabaseConstraintViolationException(ex);
+        return build(HttpStatus.CONFLICT, mapped.getMessage(), request, null);
     }
 
     @ExceptionHandler({InvalidCredentialsException.class, BadCredentialsException.class})
