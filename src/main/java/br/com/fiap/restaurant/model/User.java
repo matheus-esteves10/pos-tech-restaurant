@@ -1,35 +1,34 @@
 package br.com.fiap.restaurant.model;
 
 import br.com.fiap.restaurant.common.audit.Address;
-import br.com.fiap.restaurant.common.audit.Audit;
-import br.com.fiap.restaurant.model.enums.UserType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Builder
+@EqualsAndHashCode(callSuper = true)
+@SuperBuilder
 @Table(name = "users")
-@EntityListeners(AuditingEntityListener.class)
-public class User implements UserDetails {
+public class User extends DefaultEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,37 +56,19 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @NotNull(message = "User type cannot be null")
-    private UserType userType;
+    @Embedded
+    private Address address;
 
-    @Builder.Default
-    @Column(nullable = false)
-    private Boolean enabled = true;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RestaurantUser> restaurants;
 
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Order> orders; //TODO adicionar algo do tipo para pedidos do user
 
-    @Embedded
-    private Address address;
-
-    @Embedded
-    @Builder.Default
-    private Audit audit = new Audit();
-
-    @PrePersist
-    @PreUpdate
-    private void ensureAudit() {
-        if (audit == null) {
-            audit = new Audit();
-        }
-    }
-
     @Override
     @NonNull
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + userType.toString()));
+        return List.of();
     }
 
     @Override
@@ -103,6 +84,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return enabled != null && enabled;
+        return getEnabled() != null && getEnabled();
     }
 }

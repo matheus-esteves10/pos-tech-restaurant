@@ -19,7 +19,6 @@ public class UserMapper {
                 .login(request.login())
                 .phone(request.phone())
                 .password(encodedPassword)
-                .userType(request.userType())
                 .address(toAddress(request.address()))
                 .build();
     }
@@ -49,7 +48,6 @@ public class UserMapper {
                 user.getEmail(),
                 user.getLogin(),
                 user.getPhone(),
-                user.getUserType(),
                 user.getEnabled(),
                 toAddressResponse(user.getAddress())
         );

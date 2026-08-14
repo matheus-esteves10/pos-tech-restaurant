@@ -34,8 +34,7 @@ public class JwtService {
 
         if (userDetails instanceof User user) {
             tokenBuilder
-                    .claim("id", user.getId())
-                    .claim("userType", user.getUserType().name());
+                    .claim("id", user.getId());
         }
 
         return tokenBuilder

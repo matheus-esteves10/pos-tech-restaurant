@@ -27,9 +27,6 @@ public record CreateUserRequest(
         @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
         String password,
 
-        @NotNull(message = "User type cannot be null")
-        UserType userType,
-
         @Valid
         AddressRequest address
 ) {
