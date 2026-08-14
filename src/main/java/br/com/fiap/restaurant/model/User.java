@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 @Table(name = "users")
 public class User extends DefaultEntity implements UserDetails {
 
@@ -67,12 +68,7 @@ public class User extends DefaultEntity implements UserDetails {
     @Override
     @NonNull
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (restaurants == null || restaurants.isEmpty()) {
-            return List.of();
-        }
-        return restaurants.stream()
-                .map(ru -> new SimpleGrantedAuthority("ROLE_" + ru.getUserType().toString()))
-                .collect(Collectors.toList());
+        return List.of();
     }
 
     @Override

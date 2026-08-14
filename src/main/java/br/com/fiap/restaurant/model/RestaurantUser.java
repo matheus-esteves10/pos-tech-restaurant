@@ -15,17 +15,15 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Builder
 @Table(name = "restaurant_user")
-public class RestaurantUser extends DefaultEntity {
+public class RestaurantUser {
 
     @EmbeddedId
     private RestaurantUserId id;
