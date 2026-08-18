@@ -14,9 +14,6 @@ public record UpdateUserRequest(
         @Pattern(regexp = "\\d{11}", message = "Phone must contain 11 digits")
         String phone,
 
-        @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
-        String password,
-
         @Valid
         AddressRequest address
 ) {

@@ -1,6 +1,7 @@
 package br.com.fiap.restaurant.service.impl;
 
 import br.com.fiap.restaurant.dto.request.CreateUserRequest;
+import br.com.fiap.restaurant.dto.request.UpdateUserPasswordRequest;
 import br.com.fiap.restaurant.dto.request.UpdateUserRequest;
 import br.com.fiap.restaurant.dto.response.UserResponse;
 import br.com.fiap.restaurant.exception.EntityNotFoundException;
@@ -35,10 +36,6 @@ public class UserServiceImpl implements UserService {
 
         userMapper.updateEntity(user, request);
 
-        if (request.password() != null && !request.password().isBlank()) {
-            user.setPassword(passwordEncoder.encode(request.password()));
-        }
-
         User updatedUser = userRepository.save(user);
 
         return userMapper.toResponse(updatedUser);
@@ -50,6 +47,14 @@ public class UserServiceImpl implements UserService {
 
         user.setEnabled(false);
         userRepository.save(user);
+    }
+
+    @Transactional
+    public UserResponse updatePassword(UpdateUserPasswordRequest request, User authenticatedUser) {
+        User user = findById(authenticatedUser.getId());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        User updatedUser = userRepository.save(user);
+        return userMapper.toResponse(updatedUser);
     }
 
     @Override

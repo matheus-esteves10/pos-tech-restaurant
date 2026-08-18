@@ -33,9 +33,6 @@ public class UserMapper {
         if (request.phone() != null) {
             user.setPhone(request.phone());
         }
-        if (request.password() != null) {
-            user.setPassword(request.password());
-        }
         if (request.address() != null) {
             user.setAddress(mergeAddress(user.getAddress(), request.address()));
         }

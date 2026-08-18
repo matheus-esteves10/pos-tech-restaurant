@@ -1,6 +1,7 @@
 package br.com.fiap.restaurant.controller;
 
 import br.com.fiap.restaurant.dto.request.CreateUserRequest;
+import br.com.fiap.restaurant.dto.request.UpdateUserPasswordRequest;
 import br.com.fiap.restaurant.dto.request.UpdateUserRequest;
 import br.com.fiap.restaurant.dto.response.UserResponse;
 import br.com.fiap.restaurant.model.User;
@@ -51,5 +52,13 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal User authenticatedUser) {
         userService.deleteUser(authenticatedUser);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Update the password of the authenticated user")
+    @PatchMapping("/me/password")
+    public ResponseEntity<UserResponse> updatePassword(@Valid @RequestBody UpdateUserPasswordRequest request,
+                                                       @AuthenticationPrincipal User authenticatedUser) {
+        final UserResponse userResponse = userService.updatePassword(request, authenticatedUser);
+        return ResponseEntity.ok().body(userResponse);
     }
 }
