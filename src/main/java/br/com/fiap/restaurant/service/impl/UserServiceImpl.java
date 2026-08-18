@@ -3,7 +3,7 @@ package br.com.fiap.restaurant.service.impl;
 import br.com.fiap.restaurant.dto.request.CreateUserRequest;
 import br.com.fiap.restaurant.dto.request.UpdateUserRequest;
 import br.com.fiap.restaurant.dto.response.UserResponse;
-import br.com.fiap.restaurant.exception.ResourceNotFoundException;
+import br.com.fiap.restaurant.exception.EntityNotFoundException;
 import br.com.fiap.restaurant.mapper.UserMapper;
 import br.com.fiap.restaurant.model.User;
 import br.com.fiap.restaurant.repository.UserRepository;
@@ -21,7 +21,6 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
-    @Override
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
         User user = userMapper.toEntity(request, passwordEncoder.encode(request.password()));
@@ -30,11 +29,9 @@ public class UserServiceImpl implements UserService {
         return userMapper.toResponse(savedUser);
     }
 
-    @Override
     @Transactional
     public UserResponse updateUser(UpdateUserRequest request, User authenticatedUser) {
-        User user = userRepository.findById(authenticatedUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + authenticatedUser.getId()));
+        User user = findById(authenticatedUser.getId());
 
         userMapper.updateEntity(user, request);
 
@@ -47,14 +44,18 @@ public class UserServiceImpl implements UserService {
         return userMapper.toResponse(updatedUser);
     }
 
-    @Override
     @Transactional
     public void deleteUser(User authenticatedUser) {
-        User user = userRepository.findById(authenticatedUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + authenticatedUser.getId()));
+        User user = findById(authenticatedUser.getId());
 
         user.setEnabled(false);
         userRepository.save(user);
+    }
+
+    @Override
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(EntityNotFoundException::new);
     }
 
 }
