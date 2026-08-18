@@ -1,0 +1,143 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: User
+meta:
+  id: wrk_e848ddfa80d7479e9e9d393718b212be
+  created: 1786406684159
+  modified: 1786406684159
+  description: ""
+collection:
+  - url: http://localhost:8080/api/users
+    name: Create User
+    meta:
+      id: req_1b72c8be132845afa0455f36ee65fa3b
+      created: 1786406688537
+      modified: 1787018892119
+      isPrivate: false
+      description: ""
+      sortKey: -1786406688537
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "MatheusEployee",
+          "email": "matheus.employee@email.com",
+          "login": "matheusEmployee",
+          "phone": "11987654345",
+          "password": "welcome1",
+          "address": {
+            "street": "Av. Paulista",
+            "number": "1106",
+            "neighborhood": "Campo Limpo",
+            "city": "São Paulo",
+            "state": "SP",
+            "zipCode": "string"
+          }
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/auth/login
+    name: Login
+    meta:
+      id: req_e191cba6afb94b85a1e7895c82ef0c11
+      created: 1786407736450
+      modified: 1787018998310
+      isPrivate: false
+      description: ""
+      sortKey: -1786407736450
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "login": "matheusEmployee",
+          "password": "welcome1"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/users/me
+    name: soft delete
+    meta:
+      id: req_439e5cbec0d744648ae30dce2ac98760
+      created: 1786410187701
+      modified: 1786585561044
+      isPrivate: false
+      description: ""
+      sortKey: -1786410187701
+    method: DELETE
+    authentication:
+      type: bearer
+      token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0VXBkYXRlIiwiaWF0IjoxNzg2NTg1NDM0LCJleHAiOjE3ODY1ODkwMzQsImlkIjozLCJ1c2VyVHlwZSI6IlJFU1RBVVJBTlRfT1dORVIifQ.5BAVWQCaJpzGOeEDHvr95pRTHlay4WtD3NlhzWifG3w
+      prefix: Bearer
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/users/me
+    name: Update User
+    meta:
+      id: req_38a09354f35e45d99e2494871482590d
+      created: 1786410348861
+      modified: 1786585571584
+      isPrivate: false
+      description: ""
+      sortKey: -1786406688487
+    method: PATCH
+    body:
+      mimeType: application/json
+      text: |-
+        {
+        	"login" : "matheusLogin",
+        	"password" : "welcome2"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    authentication:
+      type: bearer
+      token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0VXBkYXRlIiwiaWF0IjoxNzg2NTg1NDM0LCJleHAiOjE3ODY1ODkwMzQsImlkIjozLCJ1c2VyVHlwZSI6IlJFU1RBVVJBTlRfT1dORVIifQ.5BAVWQCaJpzGOeEDHvr95pRTHlay4WtD3NlhzWifG3w
+      prefix: Bearer
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_e41516086ccbc264010cc875b4496f08435f2995
+    created: 1786406684163
+    modified: 1786406684163
+environments:
+  name: Base Environment
+  meta:
+    id: env_e41516086ccbc264010cc875b4496f08435f2995
+    created: 1786406684163
+    modified: 1786406684163
+    isPrivate: false

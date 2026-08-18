@@ -1,0 +1,230 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Restaurant
+meta:
+  id: wrk_d572ca8391c245cf8007a8198832331e
+  created: 1786672817668
+  modified: 1786672817668
+  description: ""
+collection:
+  - url: http://localhost:8080/api/restaurant
+    name: Create Restaurant
+    meta:
+      id: req_eb4cddcc28944e7cb001be0112d43c13
+      created: 1786672821327
+      modified: 1787018840446
+      isPrivate: false
+      description: ""
+      sortKey: -1786672821327
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Pé de Fava",
+          "cnpj": "12345678000198",
+          "description": "Restaurante do Pesadelo na Cozinha",
+          "phone": "11987654322",
+          "addressRequest": {
+            "street": "Rua do Jackam",
+            "number": "123",
+            "neighborhood": "Centro",
+            "city": "São Paulo",
+            "state": "SP",
+            "zipCode": "01001000",
+            "complement": "1 andar"
+          }
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    authentication:
+      type: bearer
+      disabled: false
+      token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzT3duZXIiLCJpYXQiOjE3ODcwMTg3NTgsImV4cCI6MTc4NzAyMjM1OCwiaWQiOjV9.UERK-fzHBCDj2fATksdzPi0uOkLq7T3CL8rdf6BUA-w
+      prefix: Bearer
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/restaurant/3
+    name: Update Restaurant
+    meta:
+      id: req_ff8630df7cf04f91a45e89b6163b03f8
+      created: 1787018906453
+      modified: 1787019071008
+      isPrivate: false
+      description: ""
+      sortKey: -1786541504514
+    method: PATCH
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "description": "01 do pesadelo na cozinha2"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    authentication:
+      type: bearer
+      disabled: false
+      token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3ODcwMTkwNDcsImV4cCI6MTc4NzAyMjY0NywiaWQiOjZ9.NRGYxk1ADdqMovy5Z0fIWSJVdHJFVktrXgLJgw_qH3U
+      prefix: Bearer
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/restaurant/3/employee/6
+    name: Add user in Restaurant
+    meta:
+      id: req_67536dc70b864bdca59992770fc94858
+      created: 1787019103613
+      modified: 1787019330659
+      isPrivate: false
+      description: ""
+      sortKey: -1786607162920.5
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Pé de Fava",
+          "cnpj": "12345678000198",
+          "description": "Restaurante do Pesadelo na Cozinha",
+          "phone": "11987654322",
+          "addressRequest": {
+            "street": "Rua do Jackam",
+            "number": "123",
+            "neighborhood": "Centro",
+            "city": "São Paulo",
+            "state": "SP",
+            "zipCode": "01001000",
+            "complement": "1 andar"
+          }
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    authentication:
+      type: bearer
+      disabled: false
+      token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzT3duZXIiLCJpYXQiOjE3ODcwMTg3NTgsImV4cCI6MTc4NzAyMjM1OCwiaWQiOjV9.UERK-fzHBCDj2fATksdzPi0uOkLq7T3CL8rdf6BUA-w
+      prefix: Bearer
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/restaurant/3/owner/6
+    name: Set Owner in Restaurant
+    meta:
+      id: req_b35060a1ae5c4326a783421015e5fdb1
+      created: 1787019352814
+      modified: 1787019404656
+      isPrivate: false
+      description: ""
+      sortKey: -1786574333717.25
+    method: PATCH
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Pé de Fava",
+          "cnpj": "12345678000198",
+          "description": "Restaurante do Pesadelo na Cozinha",
+          "phone": "11987654322",
+          "addressRequest": {
+            "street": "Rua do Jackam",
+            "number": "123",
+            "neighborhood": "Centro",
+            "city": "São Paulo",
+            "state": "SP",
+            "zipCode": "01001000",
+            "complement": "1 andar"
+          }
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    authentication:
+      type: bearer
+      disabled: false
+      token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzT3duZXIiLCJpYXQiOjE3ODcwMTg3NTgsImV4cCI6MTc4NzAyMjM1OCwiaWQiOjV9.UERK-fzHBCDj2fATksdzPi0uOkLq7T3CL8rdf6BUA-w
+      prefix: Bearer
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:8080/api/restaurant/3/employee/6
+    name: Remove user in Restaurant
+    meta:
+      id: req_354de9311b124570bba67a5bc09cce3f
+      created: 1787019450594
+      modified: 1787019469949
+      isPrivate: false
+      description: ""
+      sortKey: -1786590748318.875
+    method: DELETE
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Pé de Fava",
+          "cnpj": "12345678000198",
+          "description": "Restaurante do Pesadelo na Cozinha",
+          "phone": "11987654322",
+          "addressRequest": {
+            "street": "Rua do Jackam",
+            "number": "123",
+            "neighborhood": "Centro",
+            "city": "São Paulo",
+            "state": "SP",
+            "zipCode": "01001000",
+            "complement": "1 andar"
+          }
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+    authentication:
+      type: bearer
+      disabled: false
+      token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzT3duZXIiLCJpYXQiOjE3ODcwMTg3NTgsImV4cCI6MTc4NzAyMjM1OCwiaWQiOjV9.UERK-fzHBCDj2fATksdzPi0uOkLq7T3CL8rdf6BUA-w
+      prefix: Bearer
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_bca64f84fc6de093fd588a09fcf0cd263b04ecc8
+    created: 1786672817670
+    modified: 1786672817670
+environments:
+  name: Base Environment
+  meta:
+    id: env_bca64f84fc6de093fd588a09fcf0cd263b04ecc8
+    created: 1786672817669
+    modified: 1786672817669
+    isPrivate: false
