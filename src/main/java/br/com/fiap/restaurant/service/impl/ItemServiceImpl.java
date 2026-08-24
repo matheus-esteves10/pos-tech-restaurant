@@ -64,7 +64,8 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(EntityNotFoundException::new);
     }
 
-    private Item findByIdAndRestaurantId(Long itemId, Long restaurantId) {
+    @Override
+    public Item findByIdAndRestaurantId(Long itemId, Long restaurantId) {
         Item item = findById(itemId);
 
         if (!item.getRestaurant().getId().equals(restaurantId)) {
