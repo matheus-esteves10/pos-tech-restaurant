@@ -56,10 +56,9 @@ public class Restaurant extends DefaultEntity {
     @Builder.Default
     private List<RestaurantUser> restaurantUsers = new ArrayList<>();
 
-    //todo descomentar quando implementar a classe item
-    //@OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
-//    @Builder.Default
-//    private List<Item> items = new ArrayList<>();
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Item> items = new ArrayList<>();
 
     // User management methods
     public void addUser(User user, UserType userType) {

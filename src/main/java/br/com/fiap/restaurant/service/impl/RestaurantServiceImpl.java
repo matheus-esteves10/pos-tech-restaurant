@@ -90,12 +90,14 @@ public class RestaurantServiceImpl implements RestaurantService {
                 .orElseThrow(EntityNotFoundException::new);
     }
 
+    @Transactional
     public List<RestaurantResponse> getAllRestaurants() {
         return restaurantRepository.findAll().stream()
                 .map(RestaurantResponse::fromRestaurant)
                 .toList();
     }
 
+    @Transactional
     public RestaurantResponse getRestaurant(Long restaurantId) {
         return RestaurantResponse.fromRestaurant(findRestaurantById(restaurantId));
     }
