@@ -17,6 +17,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class RestaurantServiceImpl implements RestaurantService {
@@ -86,5 +88,15 @@ public class RestaurantServiceImpl implements RestaurantService {
     public Restaurant findRestaurantById(Long restaurantId) {
         return restaurantRepository.findById(restaurantId)
                 .orElseThrow(EntityNotFoundException::new);
+    }
+
+    public List<RestaurantResponse> getAllRestaurants() {
+        return restaurantRepository.findAll().stream()
+                .map(RestaurantResponse::fromRestaurant)
+                .toList();
+    }
+
+    public RestaurantResponse getRestaurant(Long restaurantId) {
+        return RestaurantResponse.fromRestaurant(findRestaurantById(restaurantId));
     }
 }

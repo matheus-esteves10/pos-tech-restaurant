@@ -2,7 +2,8 @@ package br.com.fiap.restaurant.dto.response;
 
 import br.com.fiap.restaurant.model.Restaurant;
 
-public record RestaurantResponse(String name,
+public record RestaurantResponse(Long id,
+                                 String name,
                                  String cnpj,
                                  String description,
                                  String phone,
@@ -10,6 +11,7 @@ public record RestaurantResponse(String name,
 
     public static RestaurantResponse fromRestaurant(Restaurant restaurant) {
         return new RestaurantResponse(
+                restaurant.getId(),
                 restaurant.getName(),
                 restaurant.getCnpj(),
                 restaurant.getDescription(),

@@ -14,12 +14,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/restaurant")
@@ -28,6 +31,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class RestaurantController {
 
     private final RestaurantServiceImpl restaurantService;
+
+    @Operation(summary = "List all restaurants")
+    @GetMapping
+    public ResponseEntity<List<RestaurantResponse>> getRestaurants() {
+        final List<RestaurantResponse> restaurants = restaurantService.getAllRestaurants();
+        return ResponseEntity.ok(restaurants);
+    }
+
+    @Operation(summary = "Get a restaurant by id")
+    @GetMapping("/{restaurantId}")
+    public ResponseEntity<RestaurantResponse> getRestaurant(@PathVariable Long restaurantId) {
+        final RestaurantResponse restaurantResponse = restaurantService.getRestaurant(restaurantId);
+        return ResponseEntity.ok(restaurantResponse);
+    }
 
     @Operation(summary = "Create a new restaurant")
     @PostMapping
