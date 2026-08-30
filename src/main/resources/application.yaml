@@ -7,9 +7,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/restaurant_db
-    username: restaurant
-    password: restaurant123
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
 
 security:
