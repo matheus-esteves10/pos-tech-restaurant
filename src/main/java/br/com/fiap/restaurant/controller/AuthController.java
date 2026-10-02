@@ -3,7 +3,6 @@ package br.com.fiap.restaurant.controller;
 import br.com.fiap.restaurant.config.swagger.ApiErrorExamples;
 import br.com.fiap.restaurant.dto.request.LoginRequest;
 import br.com.fiap.restaurant.dto.response.LoginResponse;
-import br.com.fiap.restaurant.exception.ErrorResponse;
 import br.com.fiap.restaurant.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,6 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,10 +31,10 @@ public class AuthController {
     @Operation(summary = "Authenticate a user and obtain a bearer token")
     @ApiResponses({
             @ApiResponse(responseCode = "400", description = "Validation failed",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Validation failed", value = ApiErrorExamples.VALIDATION_ERROR))),
             @ApiResponse(responseCode = "401", description = "Invalid login or password",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Invalid credentials", value = ApiErrorExamples.INVALID_CREDENTIALS)))
     })
     @PostMapping("/login")

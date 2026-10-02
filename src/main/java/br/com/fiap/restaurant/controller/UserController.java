@@ -5,7 +5,6 @@ import br.com.fiap.restaurant.dto.request.CreateUserRequest;
 import br.com.fiap.restaurant.dto.request.UpdateUserPasswordRequest;
 import br.com.fiap.restaurant.dto.request.UpdateUserRequest;
 import br.com.fiap.restaurant.dto.response.UserResponse;
-import br.com.fiap.restaurant.exception.ErrorResponse;
 import br.com.fiap.restaurant.model.User;
 import br.com.fiap.restaurant.service.UserService;
 import br.com.fiap.restaurant.service.impl.UserServiceImpl;
@@ -19,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,7 +44,7 @@ public class UserController {
     @Operation(summary = "List all users")
     @ApiResponses({
             @ApiResponse(responseCode = "401", description = "Missing or invalid bearer token",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Unauthenticated", value = ApiErrorExamples.UNAUTHENTICATED)))
     })
     @GetMapping
@@ -56,10 +56,10 @@ public class UserController {
     @Operation(summary = "Get a user by id")
     @ApiResponses({
             @ApiResponse(responseCode = "401", description = "Missing or invalid bearer token",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Unauthenticated", value = ApiErrorExamples.UNAUTHENTICATED))),
             @ApiResponse(responseCode = "404", description = "User not found",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Not found", value = ApiErrorExamples.ENTITY_NOT_FOUND)))
     })
     @GetMapping("/{userId}")
@@ -71,10 +71,10 @@ public class UserController {
     @Operation(summary = "Create a new user")
     @ApiResponses({
             @ApiResponse(responseCode = "400", description = "Validation failed",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Validation failed", value = ApiErrorExamples.VALIDATION_ERROR))),
             @ApiResponse(responseCode = "409", description = "Email, login or phone already in use",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Duplicate resource", value = ApiErrorExamples.DUPLICATE_RESOURCE)))
     })
     @PostMapping
@@ -87,13 +87,13 @@ public class UserController {
     @Operation(summary = "Update the authenticated user's own account")
     @ApiResponses({
             @ApiResponse(responseCode = "400", description = "Validation failed",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Validation failed", value = ApiErrorExamples.VALIDATION_ERROR))),
             @ApiResponse(responseCode = "401", description = "Missing or invalid bearer token",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Unauthenticated", value = ApiErrorExamples.UNAUTHENTICATED))),
             @ApiResponse(responseCode = "409", description = "Email, login or phone already in use",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Duplicate resource", value = ApiErrorExamples.DUPLICATE_RESOURCE)))
     })
     @PatchMapping("/me")
@@ -106,7 +106,7 @@ public class UserController {
     @Operation(summary = "Delete the authenticated user's own account")
     @ApiResponses({
             @ApiResponse(responseCode = "401", description = "Missing or invalid bearer token",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Unauthenticated", value = ApiErrorExamples.UNAUTHENTICATED)))
     })
     @DeleteMapping("/me")
@@ -119,10 +119,10 @@ public class UserController {
     @Operation(summary = "Update the password of the authenticated user")
     @ApiResponses({
             @ApiResponse(responseCode = "400", description = "Validation failed",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Validation failed", value = ApiErrorExamples.VALIDATION_ERROR))),
             @ApiResponse(responseCode = "401", description = "Missing or invalid bearer token",
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
                             examples = @ExampleObject(name = "Unauthenticated", value = ApiErrorExamples.UNAUTHENTICATED)))
     })
     @PatchMapping("/me/password")
