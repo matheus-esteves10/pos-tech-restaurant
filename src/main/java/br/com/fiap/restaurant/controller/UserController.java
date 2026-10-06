@@ -6,7 +6,6 @@ import br.com.fiap.restaurant.dto.request.UpdateUserPasswordRequest;
 import br.com.fiap.restaurant.dto.request.UpdateUserRequest;
 import br.com.fiap.restaurant.dto.response.UserResponse;
 import br.com.fiap.restaurant.model.User;
-import br.com.fiap.restaurant.service.UserService;
 import br.com.fiap.restaurant.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,7 +30,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import java.util.List;
+
+import static br.com.fiap.restaurant.common.audit.CommonConstants.DEFAULT_PAGEABLE_SIZE;
+import static br.com.fiap.restaurant.common.audit.CommonConstants.DEFAULT_PAGEABLE_VALUE;
 
 @RestController
 @RequestMapping("/api/users")
@@ -129,6 +135,20 @@ public class UserController {
     public ResponseEntity<UserResponse> updatePassword(@Valid @RequestBody UpdateUserPasswordRequest request,
                                                        @AuthenticationPrincipal User authenticatedUser) {
         final UserResponse userResponse = userService.updatePassword(request, authenticatedUser);
+        return ResponseEntity.ok().body(userResponse);
+    }
+
+    @Operation(summary = "Find user by name")
+    @ApiResponses({
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(name = "User not found", value = ApiErrorExamples.ENTITY_NOT_FOUND)))
+    })
+    @GetMapping("/name/{name}")
+    public ResponseEntity<Page<UserResponse>> findUserByName(@PathVariable String name,
+            @PageableDefault(page = DEFAULT_PAGEABLE_VALUE, size = DEFAULT_PAGEABLE_SIZE,
+                    sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+        final Page<UserResponse> userResponse = userService.findByName(name, pageable);
         return ResponseEntity.ok().body(userResponse);
     }
 }

@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Service
@@ -63,6 +65,15 @@ public class UserServiceImpl implements UserService {
     public User findById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(EntityNotFoundException::new);
+    }
+
+    @Override
+    public Page<UserResponse> findByName(String name, Pageable pageable) {
+        Page<User> page = userRepository.findByNameIgnoreCase(name, pageable);
+        if (page.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        return page.map(userMapper::toResponse);
     }
 
     public List<UserResponse> getAllUsers() {
