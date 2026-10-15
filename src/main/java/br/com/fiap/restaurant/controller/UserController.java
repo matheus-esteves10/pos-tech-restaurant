@@ -38,9 +38,10 @@ import java.util.List;
 
 import static br.com.fiap.restaurant.common.audit.CommonConstants.DEFAULT_PAGEABLE_SIZE;
 import static br.com.fiap.restaurant.common.audit.CommonConstants.DEFAULT_PAGEABLE_VALUE;
+import static br.com.fiap.restaurant.common.ApiPaths.API_V1;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping(API_V1 + "/users")
 @RequiredArgsConstructor
 @Tag(name = "Users")
 public class UserController {

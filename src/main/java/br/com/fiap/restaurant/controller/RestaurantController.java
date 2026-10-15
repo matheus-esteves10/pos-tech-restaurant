@@ -31,8 +31,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static br.com.fiap.restaurant.common.ApiPaths.API_V1;
+
 @RestController
-@RequestMapping("/api/restaurant")
+@RequestMapping(API_V1 + "/restaurant")
 @RequiredArgsConstructor
 @Tag(name = "Restaurant")
 public class RestaurantController {

@@ -20,8 +20,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static br.com.fiap.restaurant.common.ApiPaths.API_V1;
+
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping(API_V1 + "/auth")
 @RequiredArgsConstructor
 @Tag(name = "Auth")
 public class AuthController {

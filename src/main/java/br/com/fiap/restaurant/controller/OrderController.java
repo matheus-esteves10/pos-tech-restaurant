@@ -28,8 +28,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static br.com.fiap.restaurant.common.ApiPaths.API_V1;
+
 @RestController
-@RequestMapping("/api/restaurant/{restaurantId}/order")
+@RequestMapping(API_V1 + "/restaurant/{restaurantId}/order")
 @RequiredArgsConstructor
 @Tag(name = "Order")
 public class OrderController {

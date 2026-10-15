@@ -175,7 +175,7 @@ Autenticação
 
 Login
 ```
-POST /api/auth/login
+POST /api/v1/auth/login
 Content-Type: application/json
 
 {
@@ -193,7 +193,7 @@ Response: 200 OK
 
 Registrar Usuário
 ```
-POST /api/auth/register
+POST /api/v1/auth/register
 Content-Type: application/json
 
 {
@@ -217,7 +217,7 @@ Usuários
 
 Listar Usuários
 ```
-GET /api/users
+GET /api/v1/users
 Headers: Authorization: Bearer <token>
 
 Response: 200 OK
@@ -230,7 +230,7 @@ Response: 200 OK
 
 Obter Usuário por ID
 ```
-GET /api/users/{id}
+GET /api/v1/users/{id}
 Headers: Authorization: Bearer <token>
 
 Response: 200 OK
@@ -245,7 +245,7 @@ Response: 200 OK
 
 Atualizar Usuário
 ```
-PUT /api/users/{id}
+PUT /api/v1/users/{id}
 Headers: Authorization: Bearer <token>
 Content-Type: application/json
 
@@ -260,7 +260,7 @@ Response: 200 OK
 
 Deletar Usuário
 ```
-DELETE /api/users/{id}
+DELETE /api/v1/users/{id}
 Headers: Authorization: Bearer <token>
 
 Response: 204 No Content
