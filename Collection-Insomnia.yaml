@@ -1,0 +1,832 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: post-tech-restaurant
+meta:
+  id: wrk_5509113dfe944565b203b1ffce53d20c
+  created: 1792113122568
+  modified: 1792113122568
+  description: ""
+collection:
+  - name: post-tech-restaurant
+    meta:
+      id: fld_959a974c26a5471ca34f538a2bbec1f0
+      created: 1792113122570
+      modified: 1792113122570
+      sortKey: -1792113121023
+      description: ""
+    children:
+      - name: Order
+        meta:
+          id: fld_6c4eec5914384512b6cc89a9258185a6
+          created: 1792113122570
+          modified: 1792113122570
+          sortKey: -1792113121022
+          description: ""
+        children:
+          - url: http://localhost:8080/api/v1/restaurant/7/order
+            name: Get orders
+            meta:
+              id: req_76028144a6d74781b8e35f98ca1e0f66
+              created: 1792113122571
+              modified: 1792113122571
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121020
+            method: GET
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{supabase_service_role_api_key_0yyb}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/restaurant/7/order
+            name: Create order
+            meta:
+              id: req_83e3edbe6a974b92be734ba4e8e65b92
+              created: 1792113122571
+              modified: 1792113122571
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121021
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "itemIds": [1, 2, 3]
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: ""
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/restaurant/7/order/1/cancel
+            name: Cancel Order
+            meta:
+              id: req_2128fe998aae4be4a5e51bd25efb0096
+              created: 1792113122572
+              modified: 1792113122572
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121019
+            method: PATCH
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{supabase_service_role_api_key_0yyb}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/restaurant/7/order/2/deliver
+            name: Set Delivered Order
+            meta:
+              id: req_6044278707f349f3b22019ab30e3b58e
+              created: 1792113122573
+              modified: 1792113122573
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121018
+            method: PATCH
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{supabase_service_role_api_key_0yyb}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Item
+        meta:
+          id: fld_d90703283c34406c8f84d5dfe29e0c73
+          created: 1792113122573
+          modified: 1792113122573
+          sortKey: -1792113121017
+          description: ""
+        children:
+          - url: http://localhost:8080/api/v1/restaurant/1/item
+            name: Create Item
+            meta:
+              id: req_29d8971d696f4c53addeb691b494304f
+              created: 1792113122574
+              modified: 1792114105372
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121016
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Coca cola 600ML",
+                  "description": "",
+                  "value": 12.00,
+                	"imageUrl": "http://testUrl",
+                	"itemType": "JUST_DELIVERY"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/restaurant/1/item/2
+            name: Update Item
+            meta:
+              id: req_4ee77ab00fa842748fc02f254639e83a
+              created: 1792113122574
+              modified: 1792114774235
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121015
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Coca 600ml",
+                  "description": "",
+                  "value": 12.00,
+                	"imageUrl": "https://test2iomefoqwef.com",
+                	"itemType":"JUST_IN_PERSON"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTQyNzYsImV4cCI6MTc5MjExNzg3NiwiaWQiOjF9.YFB3HmnA8IZgP0PCsEz8qLm_i2nWJhY7MrJArBLgOZY
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/restaurant/7/item/3
+            name: Delete Item
+            meta:
+              id: req_6798076cec3c4279bcdb3893b9780ad9
+              created: 1792113122575
+              modified: 1792113122575
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121014
+            method: DELETE
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: ""
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Restaurant
+        meta:
+          id: fld_ed336b0ab86648af8d427589eecdf937
+          created: 1792113122575
+          modified: 1792113122575
+          sortKey: -1792113121013
+          description: ""
+        children:
+          - url: http://localhost:8080/api/v1/restaurant
+            name: Get Restaurants
+            meta:
+              id: req_07711d1c12174e39a531155986142574
+              created: 1792113122576
+              modified: 1792113251511
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121011
+            method: GET
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Pé de Fava",
+                  "cnpj": "12345678000198",
+                  "description": "Restaurante do Pesadelo na Cozinha",
+                  "phone": "11987654322",
+                  "addressRequest": {
+                    "street": "Rua do Jackam",
+                    "number": "123",
+                    "neighborhood": "Centro",
+                    "city": "São Paulo",
+                    "state": "SP",
+                    "zipCode": "01001000",
+                    "complement": "1 andar"
+                  }
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/restaurant
+            name: Create Restaurant
+            meta:
+              id: req_50225507c52740abbaf46967751bb1e5
+              created: 1792113122576
+              modified: 1792114096511
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121012
+            method: POST
+            body:
+              mimeType: application/json
+              text: >-
+                {
+                  "name": "Cantina Bella Vista",
+                  "cnpj": "98765432000145",
+                  "description": "Restaurante especializado em culinária italiana artesanal",
+                  "phone": "11991234567",
+                  "addressRequest": {
+                    "street": "Rua das Palmeiras",
+                    "number": "456",
+                    "neighborhood": "Jardins",
+                    "city": "São Paulo",
+                    "state": "SP",
+                    "zipCode": "01414001",
+                    "complement": "Loja 2"
+                  }
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/restaurant/3
+            name: Update Restaurant
+            meta:
+              id: req_6d7ed027866f468e99d418a52c3a208f
+              created: 1792113122577
+              modified: 1792113122577
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121009
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "description": "01 do pesadelo na cozinha2"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: ""
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/restaurant/3/employee/6
+            name: Add user in Restaurant
+            meta:
+              id: req_85290ac633b6421692a5f66c6e8b3479
+              created: 1792113122577
+              modified: 1792113122577
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121008
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Pé de Fava",
+                  "cnpj": "12345678000198",
+                  "description": "Restaurante do Pesadelo na Cozinha",
+                  "phone": "11987654322",
+                  "addressRequest": {
+                    "street": "Rua do Jackam",
+                    "number": "123",
+                    "neighborhood": "Centro",
+                    "city": "São Paulo",
+                    "state": "SP",
+                    "zipCode": "01001000",
+                    "complement": "1 andar"
+                  }
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: ""
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/restaurant/1
+            name: Get Restaurant by id
+            meta:
+              id: req_f050cc5e686745f7a48de00417365b50
+              created: 1792113122577
+              modified: 1792113416643
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121010
+            method: GET
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Pé de Fava",
+                  "cnpj": "12345678000198",
+                  "description": "Restaurante do Pesadelo na Cozinha",
+                  "phone": "11987654322",
+                  "addressRequest": {
+                    "street": "Rua do Jackam",
+                    "number": "123",
+                    "neighborhood": "Centro",
+                    "city": "São Paulo",
+                    "state": "SP",
+                    "zipCode": "01001000",
+                    "complement": "1 andar"
+                  }
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/restaurant/3/employee/6
+            name: Remove user in Restaurant
+            meta:
+              id: req_0975e8de844146bbae21b1192f9d5f28
+              created: 1792113122578
+              modified: 1792113122578
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121006
+            method: DELETE
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Pé de Fava",
+                  "cnpj": "12345678000198",
+                  "description": "Restaurante do Pesadelo na Cozinha",
+                  "phone": "11987654322",
+                  "addressRequest": {
+                    "street": "Rua do Jackam",
+                    "number": "123",
+                    "neighborhood": "Centro",
+                    "city": "São Paulo",
+                    "state": "SP",
+                    "zipCode": "01001000",
+                    "complement": "1 andar"
+                  }
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: ""
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/restaurant/7/owner/4
+            name: Set Owner in Restaurant
+            meta:
+              id: req_a71ae39a1a5d47d8a80c74be5f01a422
+              created: 1792113122578
+              modified: 1792113122578
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121007
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Pé de Fava",
+                  "cnpj": "12345678000198",
+                  "description": "Restaurante do Pesadelo na Cozinha",
+                  "phone": "11987654322",
+                  "addressRequest": {
+                    "street": "Rua do Jackam",
+                    "number": "123",
+                    "neighborhood": "Centro",
+                    "city": "São Paulo",
+                    "state": "SP",
+                    "zipCode": "01001000",
+                    "complement": "1 andar"
+                  }
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: ""
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: User
+        meta:
+          id: fld_e335d58d58654cb8ac305dc828f8ab23
+          created: 1792113122578
+          modified: 1792113122578
+          sortKey: -1792113121005
+          description: ""
+        children:
+          - url: http://localhost:8080/api/v1/users
+            name: Create User
+            meta:
+              id: req_6e467d4d7b4e438c999990eab46f2ae9
+              created: 1792113122578
+              modified: 1792113308547
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121004
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "name": "MatheusEployee",
+                    "email": "matheus.employee@email.com",
+                    "login": "matheusEmployee",
+                    "phone": "11987654345",
+                    "password": "welcome1",
+                    "address": {
+                        "street": "Av. Paulista",
+                        "number": "1106",
+                        "neighborhood": "Campo Limpo",
+                        "city": "São Paulo",
+                        "state": "SP",
+                        "zipCode": "string"
+                    }
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/users/me
+            name: soft delete
+            meta:
+              id: req_2338d87bb07d41fc83daac154f406073
+              created: 1792113122579
+              modified: 1792113122579
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121000
+            method: DELETE
+            authentication:
+              type: bearer
+              disabled: false
+              token: ""
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/users/1
+            name: Get User by id
+            meta:
+              id: req_67109ff1eda04b899b52a6c6e259bd5f
+              created: 1792113122579
+              modified: 1792113221623
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121002
+            method: GET
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "name": "MatheusEployee",
+                    "email": "matheus.employee@email.com",
+                    "login": "matheusEmployee",
+                    "phone": "11987654345",
+                    "password": "welcome1",
+                    "address": {
+                        "street": "Av. Paulista",
+                        "number": "1106",
+                        "neighborhood": "Campo Limpo",
+                        "city": "São Paulo",
+                        "state": "SP",
+                        "zipCode": "string"
+                    }
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/auth/login
+            name: Login
+            meta:
+              id: req_87932a2258ca44c9ab03c42d66c82b16
+              created: 1792113122579
+              modified: 1792113170753
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121001
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "login": "matheusEmployee",
+                  "password": "welcome1"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/users
+            name: Get Users
+            meta:
+              id: req_8d48d63679384fbd9778d8bb48778e8b
+              created: 1792113122579
+              modified: 1792113234348
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121003
+            method: GET
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                    "name": "MatheusEployee",
+                    "email": "matheus.employee@email.com",
+                    "login": "matheusEmployee",
+                    "phone": "11987654345",
+                    "password": "welcome1",
+                    "address": {
+                        "street": "Av. Paulista",
+                        "number": "1106",
+                        "neighborhood": "Campo Limpo",
+                        "city": "São Paulo",
+                        "state": "SP",
+                        "zipCode": "string"
+                    }
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/users/me
+            name: Update User
+            meta:
+              id: req_3cb5b7ab83be48d68b4942dafacad156
+              created: 1792113122580
+              modified: 1792113122580
+              isPrivate: false
+              description: ""
+              sortKey: -1792113120999
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                	"login" : "matheusEmployee",
+                	"password" : "welcome2"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{auth_secret_06d7}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/users/me
+            name: Update User Password
+            meta:
+              id: req_a2686cf0999c433c80ec2966bd6f5fb4
+              created: 1792113122580
+              modified: 1792113122580
+              isPrivate: false
+              description: ""
+              sortKey: -1792113120998
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                	"login" : "matheusEmployee",
+                	"password" : "welcome2"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{auth_secret_06d7}}"
+              prefix: ""
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/users/name/matheus
+            name: GetUserByName
+            meta:
+              id: req_9307adff586d4a0293d7f7d87242a477
+              created: 1792113287583
+              modified: 1792113382960
+              isPrivate: false
+              description: ""
+              sortKey: -1792113287583
+            method: GET
+            authentication:
+              type: bearer
+              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_2581f6b1650d3ea7e484ee403eaaf2410ba8db50
+    created: 1792113122605
+    modified: 1792113122605
+environments:
+  name: Base Environment
+  meta:
+    id: env_2581f6b1650d3ea7e484ee403eaaf2410ba8db50
+    created: 1792113122580
+    modified: 1792113122580
+    isPrivate: false
