@@ -2,6 +2,7 @@ package br.com.fiap.restaurant.model;
 
 import br.com.fiap.restaurant.common.audit.Address;
 import br.com.fiap.restaurant.model.embeddable.RestaurantUserId;
+import br.com.fiap.restaurant.model.enums.KitchenType;
 import br.com.fiap.restaurant.model.enums.UserType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -10,6 +11,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
@@ -21,6 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -51,6 +55,16 @@ public class Restaurant extends DefaultEntity {
     @Column
     @Pattern(regexp = "\\d{11}", message = "Invalid phone")
     private String phone;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private KitchenType kitchenType;
+
+    @Column(nullable = false)
+    private LocalTime openingAt;
+
+    @Column(nullable = false)
+    private LocalTime closingAt;
 
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

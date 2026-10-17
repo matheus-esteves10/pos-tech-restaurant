@@ -13,14 +13,22 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
 
     public User toEntity(CreateUserRequest request, String encodedPassword) {
-        return User.builder()
+        User.UserBuilder<?, ?> builder = User.builder()
                 .name(request.name())
                 .email(request.email())
                 .login(request.login())
-                .phone(request.phone())
                 .password(encodedPassword)
-                .address(toAddress(request.address()))
-                .build();
+                ;
+
+        if (request.phone() != null) {
+            builder.phone(request.phone());
+        }
+
+        if (request.address() != null) {
+            builder.address(toAddress(request.address()));
+        }
+
+        return builder.build();
     }
 
     public void updateEntity(User user, UpdateUserRequest request) {
@@ -51,18 +59,7 @@ public class UserMapper {
     }
 
     private Address toAddress(AddressRequest request) {
-        if (request == null) {
-            return null;
-        }
-        return Address.builder()
-                .street(request.street())
-                .number(request.number())
-                .neighborhood(request.neighborhood())
-                .city(request.city())
-                .state(request.state())
-                .zipCode(request.zipCode())
-                .complement(request.complement())
-                .build();
+        return AddressRequest.toAddress(request);
     }
 
     private Address mergeAddress(Address currentAddress, AddressRequest request) {
@@ -96,17 +93,6 @@ public class UserMapper {
     }
 
     private AddressResponse toAddressResponse(Address address) {
-        if (address == null) {
-            return null;
-        }
-        return new AddressResponse(
-                address.getStreet(),
-                address.getNumber(),
-                address.getNeighborhood(),
-                address.getCity(),
-                address.getState(),
-                address.getZipCode(),
-                address.getComplement()
-        );
+        return AddressResponse.fromAddress(address);
     }
 }
