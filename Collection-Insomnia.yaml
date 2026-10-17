@@ -257,24 +257,6 @@ collection:
               description: ""
               sortKey: -1792113121011
             method: GET
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                  "name": "Pé de Fava",
-                  "cnpj": "12345678000198",
-                  "description": "Restaurante do Pesadelo na Cozinha",
-                  "phone": "11987654322",
-                  "addressRequest": {
-                    "street": "Rua do Jackam",
-                    "number": "123",
-                    "neighborhood": "Centro",
-                    "city": "São Paulo",
-                    "state": "SP",
-                    "zipCode": "01001000",
-                    "complement": "1 andar"
-                  }
-                }
             headers:
               - name: Content-Type
                 value: application/json
@@ -381,24 +363,6 @@ collection:
               description: ""
               sortKey: -1792113121008
             method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                  "name": "Pé de Fava",
-                  "cnpj": "12345678000198",
-                  "description": "Restaurante do Pesadelo na Cozinha",
-                  "phone": "11987654322",
-                  "addressRequest": {
-                    "street": "Rua do Jackam",
-                    "number": "123",
-                    "neighborhood": "Centro",
-                    "city": "São Paulo",
-                    "state": "SP",
-                    "zipCode": "01001000",
-                    "complement": "1 andar"
-                  }
-                }
             headers:
               - name: Content-Type
                 value: application/json
@@ -425,24 +389,32 @@ collection:
               description: ""
               sortKey: -1792113121010
             method: GET
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                  "name": "Pé de Fava",
-                  "cnpj": "12345678000198",
-                  "description": "Restaurante do Pesadelo na Cozinha",
-                  "phone": "11987654322",
-                  "addressRequest": {
-                    "street": "Rua do Jackam",
-                    "number": "123",
-                    "neighborhood": "Centro",
-                    "city": "São Paulo",
-                    "state": "SP",
-                    "zipCode": "01001000",
-                    "complement": "1 andar"
-                  }
-                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: http://localhost:8080/api/v1/restaurant/1/employee
+            name: Get Restaurant Employees
+            meta:
+              id: req_2b08c5c2f2fe488b9fdbfbd1c7c98d6a
+              created: 1792113122577
+              modified: 1792113122577
+              isPrivate: false
+              description: ""
+              sortKey: -1792113121009.5
+            method: GET
             headers:
               - name: Content-Type
                 value: application/json
@@ -513,24 +485,6 @@ collection:
               description: ""
               sortKey: -1792113121007
             method: PATCH
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                  "name": "Pé de Fava",
-                  "cnpj": "12345678000198",
-                  "description": "Restaurante do Pesadelo na Cozinha",
-                  "phone": "11987654322",
-                  "addressRequest": {
-                    "street": "Rua do Jackam",
-                    "number": "123",
-                    "neighborhood": "Centro",
-                    "city": "São Paulo",
-                    "state": "SP",
-                    "zipCode": "01001000",
-                    "complement": "1 andar"
-                  }
-                }
             headers:
               - name: Content-Type
                 value: application/json
@@ -627,24 +581,6 @@ collection:
               description: ""
               sortKey: -1792113121002
             method: GET
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                    "name": "MatheusEployee",
-                    "email": "matheus.employee@email.com",
-                    "login": "matheusEmployee",
-                    "phone": "11987654345",
-                    "password": "welcome1",
-                    "address": {
-                        "street": "Av. Paulista",
-                        "number": "1106",
-                        "neighborhood": "Campo Limpo",
-                        "city": "São Paulo",
-                        "state": "SP",
-                        "zipCode": "string"
-                    }
-                }
             headers:
               - name: Content-Type
                 value: application/json
@@ -699,24 +635,6 @@ collection:
               description: ""
               sortKey: -1792113121003
             method: GET
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                    "name": "MatheusEployee",
-                    "email": "matheus.employee@email.com",
-                    "login": "matheusEmployee",
-                    "phone": "11987654345",
-                    "password": "welcome1",
-                    "address": {
-                        "street": "Av. Paulista",
-                        "number": "1106",
-                        "neighborhood": "Campo Limpo",
-                        "city": "São Paulo",
-                        "state": "SP",
-                        "zipCode": "string"
-                    }
-                }
             headers:
               - name: Content-Type
                 value: application/json

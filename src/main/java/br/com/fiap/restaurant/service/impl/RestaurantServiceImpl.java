@@ -2,6 +2,7 @@ package br.com.fiap.restaurant.service.impl;
 
 import br.com.fiap.restaurant.dto.request.CreateRestaurantRequest;
 import br.com.fiap.restaurant.dto.request.UpdateRestaurantRequest;
+import br.com.fiap.restaurant.dto.response.RestaurantEmployeeResponse;
 import br.com.fiap.restaurant.dto.response.RestaurantResponse;
 import br.com.fiap.restaurant.dto.response.RestaurantUserResponse;
 import br.com.fiap.restaurant.exception.EntityNotFoundException;
@@ -100,5 +101,16 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Transactional
     public RestaurantResponse getRestaurant(Long restaurantId) {
         return RestaurantResponse.fromRestaurant(findRestaurantById(restaurantId));
+    }
+
+    @Transactional
+    public List<RestaurantEmployeeResponse> getRestaurantEmployees(Long restaurantId, User authenticatedUser) {
+        restaurantUserService.validateUserIsAssocieted(authenticatedUser, restaurantId);
+
+        Restaurant restaurant = findRestaurantById(restaurantId);
+
+        return restaurant.getRestaurantUsers().stream()
+                .map(RestaurantEmployeeResponse::fromRestaurantUser)
+                .toList();
     }
 }

@@ -3,6 +3,7 @@ package br.com.fiap.restaurant.controller;
 import br.com.fiap.restaurant.config.swagger.ApiErrorExamples;
 import br.com.fiap.restaurant.dto.request.CreateRestaurantRequest;
 import br.com.fiap.restaurant.dto.request.UpdateRestaurantRequest;
+import br.com.fiap.restaurant.dto.response.RestaurantEmployeeResponse;
 import br.com.fiap.restaurant.dto.response.RestaurantResponse;
 import br.com.fiap.restaurant.dto.response.RestaurantUserResponse;
 import br.com.fiap.restaurant.model.User;
@@ -66,6 +67,25 @@ public class RestaurantController {
     public ResponseEntity<RestaurantResponse> getRestaurant(@PathVariable Long restaurantId) {
         final RestaurantResponse restaurantResponse = restaurantService.getRestaurant(restaurantId);
         return ResponseEntity.ok(restaurantResponse);
+    }
+
+    @Operation(summary = "List restaurant employees")
+    @ApiResponses({
+            @ApiResponse(responseCode = "401", description = "Missing or invalid bearer token",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(name = "Unauthenticated", value = ApiErrorExamples.UNAUTHENTICATED))),
+            @ApiResponse(responseCode = "403", description = "Authenticated user is not associated with the restaurant",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(name = "Forbidden", value = ApiErrorExamples.FORBIDDEN))),
+            @ApiResponse(responseCode = "404", description = "Restaurant not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(name = "Not found", value = ApiErrorExamples.ENTITY_NOT_FOUND)))
+    })
+    @GetMapping("/{restaurantId}/employee")
+    public ResponseEntity<List<RestaurantEmployeeResponse>> getRestaurantEmployees(@PathVariable Long restaurantId,
+                                                                                   @AuthenticationPrincipal User authenticatedUser) {
+        final List<RestaurantEmployeeResponse> employees = restaurantService.getRestaurantEmployees(restaurantId, authenticatedUser);
+        return ResponseEntity.ok(employees);
     }
 
     @Operation(summary = "Create a new restaurant")
