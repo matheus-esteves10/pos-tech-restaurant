@@ -148,18 +148,29 @@ restaurant/
 ├── src/
 │   ├── main/
 │   │   ├── java/br/com/fiap/restaurant/
-│   │   │   ├── controller/          # Controllers REST
-│   │   │   ├── service/             # Serviços de negócio
-│   │   │   ├── repository/          # Interfaces de acesso a dados
-│   │   │   ├── entity/              # Entidades JPA
-│   │   │   ├── dto/                 # DTOs (Request/Response)
-│   │   │   ├── mapper/              # Mapeadores DTO ↔ Entity
-│   │   │   ├── security/            # Configuração de segurança
-│   │   │   ├── exception/           # Exceções customizadas
+│   │   │   ├── domain/                  # Regras de negócio corporativas (núcleo)
+│   │   │   │   ├── entity/              # Entidades (User, Restaurant, Item, Order...)
+│   │   │   │   ├── valueobject/         # Objetos de valor (Address, Audit, RestaurantUserId)
+│   │   │   │   ├── enums/               # Enums do domínio
+│   │   │   │   ├── exception/           # Exceções de negócio
+│   │   │   │   └── repository/          # Contratos de persistência
+│   │   │   ├── application/             # Casos de uso (regras da aplicação)
+│   │   │   │   ├── service/             # Interfaces e implementações dos casos de uso
+│   │   │   │   ├── dto/                 # Modelos de entrada/saída (Request/Response)
+│   │   │   │   └── mapper/              # Mapeadores DTO ↔ Entidade
+│   │   │   ├── infrastructure/          # Frameworks e detalhes técnicos
+│   │   │   │   ├── config/              # Configurações (JPA, OpenAPI)
+│   │   │   │   ├── persistence/audit/   # Auditoria JPA
+│   │   │   │   └── security/            # Spring Security, JWT e autenticação
+│   │   │   ├── presentation/            # Adaptadores de entrada (HTTP)
+│   │   │   │   ├── controller/          # Controllers REST
+│   │   │   │   ├── exception/           # Exception handler global
+│   │   │   │   ├── swagger/             # Exemplos de erro da documentação
+│   │   │   │   └── common/              # Constantes da API (paths, paginação)
 │   │   │   └── RestaurantApplication.java  # Classe principal
 │   │   └── resources/
-│   │       ├── application.yml      # Configurações
-│   │       └── application-test.yml # Configurações de teste
+│   │       ├── application.yaml     # Configurações
+│   │       └── application-local.yml # Configurações do perfil local
 │   └── test/
 │       └── java/br/com/fiap/restaurant/
 ├── compose.yaml                     # Docker Compose
