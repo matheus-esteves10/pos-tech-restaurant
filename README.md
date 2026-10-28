@@ -370,9 +370,21 @@ Todas as respostas de erro seguem o formato `ProblemDetail` (RFC 7807):
 ./mvnw clean verify
 ```
 
-- **Testes unitários**: domínio, use cases (repositórios mockados), adapters de persistência, segurança, presenters e controllers.
-- **Testes de integração**: sobem a aplicação completa com PostgreSQL real via Testcontainers. Precisam do Docker em execução; sem ele, são ignorados.
-- **Cobertura**: o JaCoCo exige no mínimo **80% de linhas** e falha o build abaixo disso. Relatório em `target/site/jacoco/index.html`.
+**Testes unitários**: domínio, use cases (repositórios mockados), adapters de persistência, segurança, presenters e controllers.
+
+**Testes de integração** (`src/test/java/.../integration`): sobem a aplicação completa e chamam a API via MockMvc, passando pelo filtro JWT, validação, use cases, JPA e um PostgreSQL 17 real criado pelo Testcontainers.
+
+| Classe | O que cobre |
+|---|---|
+| `AuthIntegrationTest` | Cadastro com senha em BCrypt, login, credenciais inválidas, duplicidade, rotas protegidas, token revogado ao desativar a conta |
+| `UserIntegrationTest` | Consulta, listagem, atualização parcial com merge de endereço, troca de senha, busca paginada por nome, soft delete |
+| `RestaurantIntegrationTest` | Criação com dono e auditoria, validações e CNPJ único, atualização só pelo dono, funcionários e promoção a dono, exclusão |
+| `ItemIntegrationTest` | Cadastro com todos os campos do cardápio, validações, permissões, consulta, isolamento entre restaurantes, soft delete |
+| `OrderIntegrationTest` | Criação de pedido, itens inválidos/deletados/de outro restaurante, permissões, ciclo de status (entregue/cancelado) |
+
+O container e o contexto Spring são compartilhados por todas as classes, e as tabelas são limpas após cada teste. Os testes de integração precisam do Docker em execução; sem ele, são ignorados.
+
+**Cobertura**: o JaCoCo exige no mínimo **80% de linhas** e falha o build abaixo disso. Relatório em `target/site/jacoco/index.html`.
 
 ---
 
