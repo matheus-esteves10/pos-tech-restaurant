@@ -54,9 +54,9 @@ class RestaurantUseCasesTest {
     void updatesRestaurantWhenOwner() {
         Restaurant restaurant = Fixtures.restaurant(10L, owner);
         List<Item> items = List.of(Fixtures.item(1L, 10L));
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(restaurant));
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(restaurant));
         when(restaurantRepository.save(restaurant)).thenReturn(restaurant);
-        when(itemRepository.findAllByRestaurantId(10L)).thenReturn(items);
+        when(itemRepository.findAllActiveByRestaurantId(10L)).thenReturn(items);
 
         RestaurantDetails details = new UpdateRestaurantUseCase(restaurantRepository, itemRepository).execute(10L,
                 new UpdateRestaurantCommand("Bistro", null, null, null, null, null, null), owner);
@@ -67,8 +67,8 @@ class RestaurantUseCasesTest {
 
     @Test
     void refusesUpdateFromNonOwnerAndUnknownRestaurant() {
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner, employee)));
-        when(restaurantRepository.findById(99L)).thenReturn(Optional.empty());
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner, employee)));
+        when(restaurantRepository.findActiveById(99L)).thenReturn(Optional.empty());
         UpdateRestaurantUseCase useCase = new UpdateRestaurantUseCase(restaurantRepository, itemRepository);
         UpdateRestaurantCommand command = new UpdateRestaurantCommand("x", null, null, null, null, null, null);
 
@@ -81,10 +81,10 @@ class RestaurantUseCasesTest {
     void getsAndListsRestaurantsWithItems() {
         Restaurant restaurant = Fixtures.restaurant(10L, owner);
         List<Item> items = List.of(Fixtures.item(1L, 10L));
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(restaurant));
-        when(restaurantRepository.findById(99L)).thenReturn(Optional.empty());
-        when(restaurantRepository.findAll()).thenReturn(List.of(restaurant));
-        when(itemRepository.findAllByRestaurantId(10L)).thenReturn(items);
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(restaurant));
+        when(restaurantRepository.findActiveById(99L)).thenReturn(Optional.empty());
+        when(restaurantRepository.findAllActive()).thenReturn(List.of(restaurant));
+        when(itemRepository.findAllActiveByRestaurantId(10L)).thenReturn(items);
 
         assertEquals(new RestaurantDetails(restaurant, items),
                 new GetRestaurantUseCase(restaurantRepository, itemRepository).execute(10L));
@@ -96,7 +96,7 @@ class RestaurantUseCasesTest {
 
     @Test
     void listsEmployeesOnlyForMembers() {
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner, employee)));
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner, employee)));
         ListRestaurantEmployeesUseCase useCase = new ListRestaurantEmployeesUseCase(restaurantRepository);
 
         List<RestaurantMember> members = useCase.execute(10L, employee);
@@ -108,9 +108,9 @@ class RestaurantUseCasesTest {
     @Test
     void addsAndRemovesEmployees() {
         Restaurant restaurant = Fixtures.restaurant(10L, owner);
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(restaurant));
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(restaurant));
         when(restaurantRepository.save(restaurant)).thenReturn(restaurant);
-        when(userRepository.findById(2L)).thenReturn(Optional.of(employee));
+        when(userRepository.findActiveById(2L)).thenReturn(Optional.of(employee));
 
         RestaurantMembership added = new AddRestaurantEmployeeUseCase(restaurantRepository, userRepository)
                 .execute(10L, 2L, owner);
@@ -126,8 +126,8 @@ class RestaurantUseCasesTest {
 
     @Test
     void membershipChangesRequireOwnerAndExistingUser() {
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner, employee)));
-        when(userRepository.findById(9L)).thenReturn(Optional.empty());
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner, employee)));
+        when(userRepository.findActiveById(9L)).thenReturn(Optional.empty());
         AddRestaurantEmployeeUseCase add = new AddRestaurantEmployeeUseCase(restaurantRepository, userRepository);
         RemoveRestaurantEmployeeUseCase remove = new RemoveRestaurantEmployeeUseCase(restaurantRepository, userRepository);
 
@@ -141,7 +141,7 @@ class RestaurantUseCasesTest {
     @Test
     void promotesMemberToOwner() {
         Restaurant restaurant = Fixtures.restaurant(10L, owner, employee);
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(restaurant));
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(restaurant));
         SetRestaurantOwnerUseCase useCase = new SetRestaurantOwnerUseCase(restaurantRepository);
 
         useCase.execute(10L, 2L, owner);
@@ -150,5 +150,22 @@ class RestaurantUseCasesTest {
         verify(restaurantRepository).save(restaurant);
         assertThrows(EntityNotFoundException.class, () -> useCase.execute(10L, 3L, owner));
         assertThrows(ForbiddenOperationException.class, () -> useCase.execute(10L, 1L, stranger));
+    }
+
+    @Test
+    void ownerSoftDeletesRestaurant() {
+        Restaurant restaurant = Fixtures.restaurant(10L, owner, employee);
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(restaurant));
+        when(restaurantRepository.findActiveById(99L)).thenReturn(Optional.empty());
+        DeleteRestaurantUseCase useCase = new DeleteRestaurantUseCase(restaurantRepository);
+
+        assertThrows(ForbiddenOperationException.class, () -> useCase.execute(10L, employee));
+        assertThrows(EntityNotFoundException.class, () -> useCase.execute(99L, owner));
+        assertTrue(restaurant.isEnabled());
+
+        useCase.execute(10L, owner);
+
+        assertFalse(restaurant.isEnabled());
+        verify(restaurantRepository).save(restaurant);
     }
 }

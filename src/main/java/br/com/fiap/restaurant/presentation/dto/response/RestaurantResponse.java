@@ -13,6 +13,7 @@ public record RestaurantResponse(Long id,
                                  KitchenType kitchenType,
                                  LocalTime openingAt,
                                  LocalTime closingAt,
-                                 AddressResponse addressRequest,
+                                 AddressResponse address,
+                                 List<RestaurantOwnerResponse> owners,
                                  List<ItemResponse> items) {
 }

@@ -321,7 +321,9 @@ collection:
               created: 1792113122576
               modified: 1792800000000
               isPrivate: false
-              description: O usuário autenticado vira dono. Salva o id em restaurantId.
+              description: |-
+                O usuário autenticado vira dono. Salva o id em restaurantId.
+                Obrigatórios: name, cnpj, kitchenType, openingAt, closingAt e address (street, number, city, state, zipCode).
               sortKey: 1000
             method: POST
             body:
@@ -335,7 +337,7 @@ collection:
                   "kitchenType": "ITALIAN_FOOD",
                   "openingAt": "11:00:00",
                   "closingAt": "23:00:00",
-                  "addressRequest": {
+                  "address": {
                     "street": "Rua das Palmeiras",
                     "number": "456",
                     "neighborhood": "Jardins",
@@ -537,6 +539,29 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}"
+            name: Delete Restaurant
+            meta:
+              id: req_3c7d9e1f5a2b4c6d8e0f1a2b3c4d5e6f
+              created: 1792886400000
+              modified: 1792886400000
+              isPrivate: false
+              description: Somente donos. Desativa o restaurante (soft delete); depois disso ele retorna 404.
+              sortKey: 9000
+            method: DELETE
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{ _.token }}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
       - name: Item
         meta:
           id: fld_d90703283c34406c8f84d5dfe29e0c73
@@ -580,6 +605,52 @@ collection:
                 if (insomnia.response.code === 201) {
                   insomnia.environment.set("itemId", insomnia.response.json().id);
                 }
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/item"
+            name: Get Items
+            meta:
+              id: req_4d8e0f2a6b3c4d7e9f1a2b3c4d5e6f70
+              created: 1792886400000
+              modified: 1792886400000
+              isPrivate: false
+              description: Cardápio do restaurante (somente itens ativos).
+              sortKey: 1500
+            method: GET
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{ _.token }}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/item/{{ _.itemId }}"
+            name: Get Item by id
+            meta:
+              id: req_5e9f1a3b7c4d4e8f0a2b3c4d5e6f7081
+              created: 1792886400000
+              modified: 1792886400000
+              isPrivate: false
+              description: Retorna 404 se o item tiver sido deletado.
+              sortKey: 1600
+            method: GET
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{ _.token }}"
+              prefix: Bearer
             settings:
               renderRequestBody: true
               encodeUrl: true

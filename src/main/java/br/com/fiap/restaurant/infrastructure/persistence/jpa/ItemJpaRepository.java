@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface ItemJpaRepository extends JpaRepository<ItemEntity, Long> {
 
-    Optional<ItemEntity> findByIdAndRestaurantId(Long id, Long restaurantId);
+    Optional<ItemEntity> findByIdAndRestaurantIdAndEnabledTrue(Long id, Long restaurantId);
 
-    List<ItemEntity> findAllByRestaurantId(Long restaurantId);
+    List<ItemEntity> findAllByRestaurantIdAndEnabledTrue(Long restaurantId);
 }

@@ -5,6 +5,7 @@ import br.com.fiap.restaurant.application.usecase.restaurant.RestaurantMembershi
 import br.com.fiap.restaurant.domain.model.Restaurant;
 import br.com.fiap.restaurant.domain.model.RestaurantMember;
 import br.com.fiap.restaurant.presentation.dto.response.RestaurantEmployeeResponse;
+import br.com.fiap.restaurant.presentation.dto.response.RestaurantOwnerResponse;
 import br.com.fiap.restaurant.presentation.dto.response.RestaurantResponse;
 import br.com.fiap.restaurant.presentation.dto.response.RestaurantUserResponse;
 
@@ -27,6 +28,9 @@ public final class RestaurantPresenter {
                 restaurant.getOpeningAt(),
                 restaurant.getClosingAt(),
                 AddressPresenter.toResponse(restaurant.getAddress()),
+                restaurant.getOwners().stream()
+                        .map(owner -> new RestaurantOwnerResponse(owner.getId(), owner.getName(), owner.getLogin()))
+                        .toList(),
                 ItemPresenter.toResponse(details.items())
         );
     }

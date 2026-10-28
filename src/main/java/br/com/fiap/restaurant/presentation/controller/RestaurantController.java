@@ -9,6 +9,7 @@ import br.com.fiap.restaurant.presentation.dto.response.RestaurantUserResponse;
 import br.com.fiap.restaurant.domain.model.User;
 import br.com.fiap.restaurant.application.usecase.restaurant.AddRestaurantEmployeeUseCase;
 import br.com.fiap.restaurant.application.usecase.restaurant.CreateRestaurantUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.DeleteRestaurantUseCase;
 import br.com.fiap.restaurant.application.usecase.restaurant.GetRestaurantUseCase;
 import br.com.fiap.restaurant.application.usecase.restaurant.ListRestaurantEmployeesUseCase;
 import br.com.fiap.restaurant.application.usecase.restaurant.ListRestaurantsUseCase;
@@ -56,6 +57,7 @@ public class RestaurantController {
     private final AddRestaurantEmployeeUseCase addRestaurantEmployeeUseCase;
     private final RemoveRestaurantEmployeeUseCase removeRestaurantEmployeeUseCase;
     private final SetRestaurantOwnerUseCase setRestaurantOwnerUseCase;
+    private final DeleteRestaurantUseCase deleteRestaurantUseCase;
 
     @Operation(summary = "List all restaurants")
     @ApiResponses({
@@ -211,4 +213,22 @@ public class RestaurantController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "Delete a restaurant (soft delete)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "401", description = "Missing or invalid bearer token",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(name = "Unauthenticated", value = ApiErrorExamples.UNAUTHENTICATED))),
+            @ApiResponse(responseCode = "403", description = "Authenticated user is not the restaurant owner",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(name = "Forbidden", value = ApiErrorExamples.FORBIDDEN))),
+            @ApiResponse(responseCode = "404", description = "Restaurant not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(name = "Not found", value = ApiErrorExamples.ENTITY_NOT_FOUND)))
+    })
+    @DeleteMapping("/{restaurantId}")
+    public ResponseEntity<Void> deleteRestaurant(@PathVariable Long restaurantId,
+                                                 @AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        deleteRestaurantUseCase.execute(restaurantId, authenticatedUser);
+        return ResponseEntity.noContent().build();
+    }
 }

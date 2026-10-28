@@ -1,5 +1,6 @@
 package br.com.fiap.restaurant.infrastructure.persistence.adapter;
 
+import br.com.fiap.restaurant.domain.enums.KitchenType;
 import br.com.fiap.restaurant.domain.enums.UserType;
 import br.com.fiap.restaurant.domain.exception.EntityNotFoundException;
 import br.com.fiap.restaurant.domain.model.Restaurant;
@@ -45,8 +46,8 @@ class RestaurantRepositoryAdapterTest {
         });
         when(userJpaRepository.getReferenceById(1L)).thenReturn(EntityFixtures.user(1L, "owner"));
 
-        Restaurant saved = adapter.save(Restaurant.create("Cafe", "123", null, null, null, null,
-                LocalTime.NOON, LocalTime.MIDNIGHT, owner));
+        Restaurant saved = adapter.save(Restaurant.create("Cafe", "123", null, Fixtures.address(), null,
+                KitchenType.FAST_FOOD, LocalTime.NOON, LocalTime.MIDNIGHT, owner));
 
         assertEquals(10L, saved.getId());
         assertTrue(saved.isOwner(1L));
@@ -83,10 +84,10 @@ class RestaurantRepositoryAdapterTest {
     @Test
     void findsRestaurants() {
         RestaurantEntity entity = EntityFixtures.restaurant(10L, EntityFixtures.user(1L, "owner"));
-        when(restaurantJpaRepository.findById(10L)).thenReturn(Optional.of(entity));
-        when(restaurantJpaRepository.findAll()).thenReturn(List.of(entity));
+        when(restaurantJpaRepository.findByIdAndEnabledTrue(10L)).thenReturn(Optional.of(entity));
+        when(restaurantJpaRepository.findAllByEnabledTrue()).thenReturn(List.of(entity));
 
-        assertEquals("Cafe", adapter.findById(10L).orElseThrow().getName());
-        assertEquals(1, adapter.findAll().size());
+        assertEquals("Cafe", adapter.findActiveById(10L).orElseThrow().getName());
+        assertEquals(1, adapter.findAllActive().size());
     }
 }

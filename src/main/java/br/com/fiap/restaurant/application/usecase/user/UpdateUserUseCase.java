@@ -15,7 +15,7 @@ public class UpdateUserUseCase {
     }
 
     public User execute(User authenticatedUser, UpdateUserCommand command) {
-        User user = userRepository.findById(authenticatedUser.getId())
+        User user = userRepository.findActiveById(authenticatedUser.getId())
                 .orElseThrow(EntityNotFoundException::new);
 
         user.update(command.email(), command.login(), command.phone(), command.address());

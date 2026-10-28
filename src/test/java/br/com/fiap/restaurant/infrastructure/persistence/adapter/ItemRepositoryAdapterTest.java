@@ -63,10 +63,10 @@ class ItemRepositoryAdapterTest {
     @Test
     void findsItemsOfRestaurant() {
         ItemEntity entity = EntityFixtures.item(3L, restaurant);
-        when(itemJpaRepository.findByIdAndRestaurantId(3L, 10L)).thenReturn(Optional.of(entity));
-        when(itemJpaRepository.findAllByRestaurantId(10L)).thenReturn(List.of(entity));
+        when(itemJpaRepository.findByIdAndRestaurantIdAndEnabledTrue(3L, 10L)).thenReturn(Optional.of(entity));
+        when(itemJpaRepository.findAllByRestaurantIdAndEnabledTrue(10L)).thenReturn(List.of(entity));
 
-        assertEquals("Burger", adapter.findByIdAndRestaurantId(3L, 10L).orElseThrow().getName());
-        assertEquals(1, adapter.findAllByRestaurantId(10L).size());
+        assertEquals("Burger", adapter.findActiveByIdAndRestaurantId(3L, 10L).orElseThrow().getName());
+        assertEquals(1, adapter.findAllActiveByRestaurantId(10L).size());
     }
 }

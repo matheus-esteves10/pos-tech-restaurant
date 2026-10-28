@@ -19,7 +19,7 @@ public class ListRestaurantEmployeesUseCase {
     }
 
     public List<RestaurantMember> execute(Long restaurantId, User authenticatedUser) {
-        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+        Restaurant restaurant = restaurantRepository.findActiveById(restaurantId)
                 .orElseThrow(EntityNotFoundException::new);
 
         restaurant.ensureMember(authenticatedUser);

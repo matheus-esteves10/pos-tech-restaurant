@@ -10,11 +10,11 @@ public interface UserRepository {
 
     User save(User user);
 
-    Optional<User> findById(Long id);
+    Optional<User> findActiveById(Long id);
 
     Optional<User> findByLogin(String login);
 
-    List<User> findAll();
+    List<User> findAllActive();
 
-    PageResult<User> findByName(String name, int page, int size);
+    PageResult<User> findActiveByName(String name, int page, int size);
 }

@@ -48,6 +48,8 @@ public class Restaurant {
                                     KitchenType kitchenType, LocalTime openingAt, LocalTime closingAt, User owner) {
         requireText(name, "Name");
         requireText(cnpj, "CNPJ");
+        requireNonNull(address, "Address").ensureComplete();
+        requireNonNull(kitchenType, "Kitchen type");
         requireNonNull(openingAt, "Opening time");
         requireNonNull(closingAt, "Closing time");
         requireNonNull(owner, "Owner");
@@ -55,7 +57,7 @@ public class Restaurant {
                 true, List.of(new RestaurantMember(owner, UserType.RESTAURANT_OWNER)));
     }
 
-    public void update(String name, String description, Address address, String phone, KitchenType kitchenType,
+    public void update(String name, String description, Address addressChanges, String phone, KitchenType kitchenType,
                        LocalTime openingAt, LocalTime closingAt) {
         if (name != null) {
             this.name = requireText(name, "Name");
@@ -63,8 +65,8 @@ public class Restaurant {
         if (description != null) {
             this.description = description;
         }
-        if (address != null) {
-            this.address = address;
+        if (addressChanges != null) {
+            this.address = address == null ? addressChanges : address.mergedWith(addressChanges);
         }
         if (phone != null) {
             this.phone = phone;
@@ -78,6 +80,17 @@ public class Restaurant {
         if (closingAt != null) {
             this.closingAt = closingAt;
         }
+    }
+
+    public void disable() {
+        this.enabled = false;
+    }
+
+    public List<User> getOwners() {
+        return members.stream()
+                .filter(RestaurantMember::isOwner)
+                .map(RestaurantMember::getUser)
+                .toList();
     }
 
     public void addEmployee(User user) {

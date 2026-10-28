@@ -21,7 +21,7 @@ public class ListRestaurantOrdersUseCase {
     }
 
     public List<Order> execute(Long restaurantId, User authenticatedUser) {
-        restaurantRepository.findById(restaurantId)
+        restaurantRepository.findActiveById(restaurantId)
                 .orElseThrow(EntityNotFoundException::new)
                 .ensureMember(authenticatedUser);
 

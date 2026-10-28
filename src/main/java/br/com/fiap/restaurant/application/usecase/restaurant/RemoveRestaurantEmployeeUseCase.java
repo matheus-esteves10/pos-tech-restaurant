@@ -19,11 +19,11 @@ public class RemoveRestaurantEmployeeUseCase {
     }
 
     public RestaurantMembership execute(Long restaurantId, Long userId, User authenticatedUser) {
-        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+        Restaurant restaurant = restaurantRepository.findActiveById(restaurantId)
                 .orElseThrow(EntityNotFoundException::new);
         restaurant.ensureOwner(authenticatedUser);
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findActiveById(userId)
                 .orElseThrow(EntityNotFoundException::new);
         restaurant.removeMember(user.getId());
 

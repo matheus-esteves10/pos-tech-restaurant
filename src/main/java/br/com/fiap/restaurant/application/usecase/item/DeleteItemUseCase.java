@@ -19,11 +19,11 @@ public class DeleteItemUseCase {
     }
 
     public void execute(Long restaurantId, Long itemId, User authenticatedUser) {
-        restaurantRepository.findById(restaurantId)
+        restaurantRepository.findActiveById(restaurantId)
                 .orElseThrow(EntityNotFoundException::new)
                 .ensureMember(authenticatedUser);
 
-        Item item = itemRepository.findByIdAndRestaurantId(itemId, restaurantId)
+        Item item = itemRepository.findActiveByIdAndRestaurantId(itemId, restaurantId)
                 .orElseThrow(EntityNotFoundException::new);
 
         item.disable();

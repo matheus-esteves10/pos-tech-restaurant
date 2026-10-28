@@ -36,8 +36,8 @@ class OrderUseCasesTest {
 
     @Test
     void createsOrderWithRestaurantItems() {
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
-        when(itemRepository.findByIdAndRestaurantId(1L, 10L)).thenReturn(Optional.of(Fixtures.item(1L, 10L)));
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
+        when(itemRepository.findActiveByIdAndRestaurantId(1L, 10L)).thenReturn(Optional.of(Fixtures.item(1L, 10L)));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Order order = new CreateOrderUseCase(orderRepository, restaurantRepository, itemRepository)
@@ -50,9 +50,9 @@ class OrderUseCasesTest {
 
     @Test
     void rejectsOrderForUnknownRestaurantOrItem() {
-        when(restaurantRepository.findById(99L)).thenReturn(Optional.empty());
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
-        when(itemRepository.findByIdAndRestaurantId(7L, 10L)).thenReturn(Optional.empty());
+        when(restaurantRepository.findActiveById(99L)).thenReturn(Optional.empty());
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
+        when(itemRepository.findActiveByIdAndRestaurantId(7L, 10L)).thenReturn(Optional.empty());
         CreateOrderUseCase useCase = new CreateOrderUseCase(orderRepository, restaurantRepository, itemRepository);
 
         assertThrows(EntityNotFoundException.class, () -> useCase.execute(99L, List.of(1L), customer));
@@ -64,7 +64,7 @@ class OrderUseCasesTest {
     void cancelsAndDeliversOrders() {
         Order toCancel = Fixtures.order(1L, 10L, 4L, OrderStatus.IN_PROGRESS);
         Order toDeliver = Fixtures.order(2L, 10L, 4L, OrderStatus.IN_PROGRESS);
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
         when(orderRepository.findByIdAndRestaurantId(1L, 10L)).thenReturn(Optional.of(toCancel));
         when(orderRepository.findByIdAndRestaurantId(2L, 10L)).thenReturn(Optional.of(toDeliver));
 
@@ -81,7 +81,7 @@ class OrderUseCasesTest {
 
     @Test
     void orderManagementRequiresMembershipAndExistingOrder() {
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
         when(orderRepository.findByIdAndRestaurantId(5L, 10L)).thenReturn(Optional.empty());
         CancelOrderUseCase cancel = new CancelOrderUseCase(orderRepository, restaurantRepository);
         DeliverOrderUseCase deliver = new DeliverOrderUseCase(orderRepository, restaurantRepository);
@@ -97,7 +97,7 @@ class OrderUseCasesTest {
     @Test
     void listsRestaurantOrders() {
         List<Order> orders = List.of(Fixtures.order(1L, 10L, 4L, OrderStatus.IN_PROGRESS));
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
         when(orderRepository.findAllByRestaurantId(10L)).thenReturn(orders);
 
         assertEquals(orders, new ListRestaurantOrdersUseCase(orderRepository, restaurantRepository).execute(10L, owner));

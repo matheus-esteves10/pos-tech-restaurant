@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,7 +36,7 @@ class ItemUseCasesTest {
 
     @Test
     void createsItemForRestaurantMember() {
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner, employee)));
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner, employee)));
         when(itemRepository.save(any(Item.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Item item = new CreateItemUseCase(itemRepository, restaurantRepository).execute(10L, command, employee);
@@ -48,8 +49,8 @@ class ItemUseCasesTest {
     @Test
     void updatesAndDeletesItem() {
         Item item = Fixtures.item(1L, 10L);
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
-        when(itemRepository.findByIdAndRestaurantId(1L, 10L)).thenReturn(Optional.of(item));
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
+        when(itemRepository.findActiveByIdAndRestaurantId(1L, 10L)).thenReturn(Optional.of(item));
         when(itemRepository.save(item)).thenReturn(item);
 
         Item updated = new UpdateItemUseCase(itemRepository, restaurantRepository).execute(10L, 1L, command, owner);
@@ -61,9 +62,9 @@ class ItemUseCasesTest {
 
     @Test
     void rejectsNonMembersUnknownRestaurantsAndUnknownItems() {
-        when(restaurantRepository.findById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
-        when(restaurantRepository.findById(99L)).thenReturn(Optional.empty());
-        when(itemRepository.findByIdAndRestaurantId(5L, 10L)).thenReturn(Optional.empty());
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
+        when(restaurantRepository.findActiveById(99L)).thenReturn(Optional.empty());
+        when(itemRepository.findActiveByIdAndRestaurantId(5L, 10L)).thenReturn(Optional.empty());
         CreateItemUseCase create = new CreateItemUseCase(itemRepository, restaurantRepository);
         UpdateItemUseCase update = new UpdateItemUseCase(itemRepository, restaurantRepository);
         DeleteItemUseCase delete = new DeleteItemUseCase(itemRepository, restaurantRepository);
@@ -75,5 +76,23 @@ class ItemUseCasesTest {
         assertThrows(EntityNotFoundException.class, () -> update.execute(10L, 5L, command, owner));
         assertThrows(EntityNotFoundException.class, () -> delete.execute(10L, 5L, owner));
         verify(itemRepository, never()).save(any());
+    }
+
+    @Test
+    void listsAndGetsActiveItemsOfExistingRestaurant() {
+        Item item = Fixtures.item(1L, 10L);
+        when(restaurantRepository.findActiveById(10L)).thenReturn(Optional.of(Fixtures.restaurant(10L, owner)));
+        when(restaurantRepository.findActiveById(99L)).thenReturn(Optional.empty());
+        when(itemRepository.findAllActiveByRestaurantId(10L)).thenReturn(List.of(item));
+        when(itemRepository.findActiveByIdAndRestaurantId(1L, 10L)).thenReturn(Optional.of(item));
+        when(itemRepository.findActiveByIdAndRestaurantId(5L, 10L)).thenReturn(Optional.empty());
+        ListRestaurantItemsUseCase list = new ListRestaurantItemsUseCase(itemRepository, restaurantRepository);
+        GetItemUseCase get = new GetItemUseCase(itemRepository, restaurantRepository);
+
+        assertEquals(List.of(item), list.execute(10L));
+        assertSame(item, get.execute(10L, 1L));
+        assertThrows(EntityNotFoundException.class, () -> get.execute(10L, 5L));
+        assertThrows(EntityNotFoundException.class, () -> list.execute(99L));
+        assertThrows(EntityNotFoundException.class, () -> get.execute(99L, 1L));
     }
 }

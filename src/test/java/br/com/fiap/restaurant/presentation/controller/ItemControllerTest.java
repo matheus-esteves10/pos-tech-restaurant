@@ -2,6 +2,8 @@ package br.com.fiap.restaurant.presentation.controller;
 
 import br.com.fiap.restaurant.application.usecase.item.CreateItemUseCase;
 import br.com.fiap.restaurant.application.usecase.item.DeleteItemUseCase;
+import br.com.fiap.restaurant.application.usecase.item.GetItemUseCase;
+import br.com.fiap.restaurant.application.usecase.item.ListRestaurantItemsUseCase;
 import br.com.fiap.restaurant.application.usecase.item.ItemCommand;
 import br.com.fiap.restaurant.application.usecase.item.UpdateItemUseCase;
 import br.com.fiap.restaurant.domain.enums.ItemType;
@@ -17,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -28,6 +31,8 @@ class ItemControllerTest {
     @Mock CreateItemUseCase createItemUseCase;
     @Mock UpdateItemUseCase updateItemUseCase;
     @Mock DeleteItemUseCase deleteItemUseCase;
+    @Mock ListRestaurantItemsUseCase listRestaurantItemsUseCase;
+    @Mock GetItemUseCase getItemUseCase;
     @InjectMocks ItemController controller;
 
     private final User user = Fixtures.user(1L, "owner");
@@ -47,6 +52,20 @@ class ItemControllerTest {
         assertEquals(3L, created.getBody().id());
         assertEquals(new BigDecimal("25.90"), created.getBody().value());
         assertEquals(HttpStatus.OK, controller.updateItem(10L, 3L, update, user).getStatusCode());
+    }
+
+    @Test
+    void listsAndGetsItems() {
+        when(listRestaurantItemsUseCase.execute(10L)).thenReturn(List.of(Fixtures.item(3L, 10L)));
+        when(getItemUseCase.execute(10L, 3L)).thenReturn(Fixtures.item(3L, 10L));
+
+        var items = controller.getItems(10L);
+        var item = controller.getItem(10L, 3L);
+
+        assertEquals(HttpStatus.OK, items.getStatusCode());
+        assertEquals(1, items.getBody().size());
+        assertEquals(HttpStatus.OK, item.getStatusCode());
+        assertEquals("Burger", item.getBody().name());
     }
 
     @Test

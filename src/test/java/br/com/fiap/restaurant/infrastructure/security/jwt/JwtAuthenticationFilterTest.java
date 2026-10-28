@@ -44,6 +44,19 @@ class JwtAuthenticationFilterTest {
         verify(chain).doFilter(any(), any());
     }
 
+    @Test void doesNotAuthenticateDisabledUser() throws Exception {
+        var request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer token");
+        var user = Fixtures.user(1L, "jane");
+        user.disable();
+        when(jwtService.extractUsername("token")).thenReturn("jane");
+        when(userDetailsService.loadUserByUsername("jane")).thenReturn(new AuthenticatedUser(user));
+        filter.doFilterInternal(request, new MockHttpServletResponse(), chain);
+        assertNull(SecurityContextHolder.getContext().getAuthentication());
+        verify(jwtService, never()).isTokenValid(any(), any());
+        verify(chain).doFilter(any(), any());
+    }
+
     @Test void clearsContextForInvalidTokenAndIgnoresNonBearerHeader() throws Exception {
         var request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Bearer invalid");

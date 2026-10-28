@@ -18,8 +18,8 @@ public class GetRestaurantUseCase {
     }
 
     public RestaurantDetails execute(Long restaurantId) {
-        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+        Restaurant restaurant = restaurantRepository.findActiveById(restaurantId)
                 .orElseThrow(EntityNotFoundException::new);
-        return new RestaurantDetails(restaurant, itemRepository.findAllByRestaurantId(restaurantId));
+        return new RestaurantDetails(restaurant, itemRepository.findAllActiveByRestaurantId(restaurantId));
     }
 }

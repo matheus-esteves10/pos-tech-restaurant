@@ -19,7 +19,7 @@ public class UpdateRestaurantUseCase {
     }
 
     public RestaurantDetails execute(Long restaurantId, UpdateRestaurantCommand command, User authenticatedUser) {
-        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+        Restaurant restaurant = restaurantRepository.findActiveById(restaurantId)
                 .orElseThrow(EntityNotFoundException::new);
 
         restaurant.ensureOwner(authenticatedUser);
@@ -34,6 +34,6 @@ public class UpdateRestaurantUseCase {
         );
 
         Restaurant saved = restaurantRepository.save(restaurant);
-        return new RestaurantDetails(saved, itemRepository.findAllByRestaurantId(restaurantId));
+        return new RestaurantDetails(saved, itemRepository.findAllActiveByRestaurantId(restaurantId));
     }
 }

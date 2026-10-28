@@ -44,7 +44,7 @@ class UserUseCasesTest {
 
     @Test
     void updatesAuthenticatedUser() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(Fixtures.user(1L, "jane")));
+        when(userRepository.findActiveById(1L)).thenReturn(Optional.of(Fixtures.user(1L, "jane")));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         User updated = new UpdateUserUseCase(userRepository).execute(authenticated,
@@ -55,7 +55,7 @@ class UserUseCasesTest {
 
     @Test
     void updatesPasswordAndSoftDeletesUser() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(Fixtures.user(1L, "jane")));
+        when(userRepository.findActiveById(1L)).thenReturn(Optional.of(Fixtures.user(1L, "jane")));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(passwordEncoder.encode("new-secret")).thenReturn("new-hash");
 
@@ -70,7 +70,7 @@ class UserUseCasesTest {
 
     @Test
     void failsWhenAuthenticatedUserNoLongerExists() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+        when(userRepository.findActiveById(1L)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> new UpdateUserUseCase(userRepository)
                 .execute(authenticated, new UpdateUserCommand(null, null, null, null)));
@@ -82,9 +82,9 @@ class UserUseCasesTest {
 
     @Test
     void getsAndListsUsers() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(authenticated));
-        when(userRepository.findById(9L)).thenReturn(Optional.empty());
-        when(userRepository.findAll()).thenReturn(List.of(authenticated));
+        when(userRepository.findActiveById(1L)).thenReturn(Optional.of(authenticated));
+        when(userRepository.findActiveById(9L)).thenReturn(Optional.empty());
+        when(userRepository.findAllActive()).thenReturn(List.of(authenticated));
 
         assertSame(authenticated, new GetUserUseCase(userRepository).execute(1L));
         assertThrows(EntityNotFoundException.class, () -> new GetUserUseCase(userRepository).execute(9L));
@@ -94,8 +94,8 @@ class UserUseCasesTest {
     @Test
     void findsUsersByNameOrFailsWhenEmpty() {
         PageResult<User> page = new PageResult<>(List.of(authenticated), 0, 10, 1, 1);
-        when(userRepository.findByName("jane", 0, 10)).thenReturn(page);
-        when(userRepository.findByName("nobody", 0, 10)).thenReturn(new PageResult<>(List.of(), 0, 10, 0, 0));
+        when(userRepository.findActiveByName("jane", 0, 10)).thenReturn(page);
+        when(userRepository.findActiveByName("nobody", 0, 10)).thenReturn(new PageResult<>(List.of(), 0, 10, 0, 0));
 
         FindUsersByNameUseCase useCase = new FindUsersByNameUseCase(userRepository);
 

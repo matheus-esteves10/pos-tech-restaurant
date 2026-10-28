@@ -9,7 +9,7 @@ public interface RestaurantRepository {
 
     Restaurant save(Restaurant restaurant);
 
-    Optional<Restaurant> findById(Long id);
+    Optional<Restaurant> findActiveById(Long id);
 
-    List<Restaurant> findAll();
+    List<Restaurant> findAllActive();
 }

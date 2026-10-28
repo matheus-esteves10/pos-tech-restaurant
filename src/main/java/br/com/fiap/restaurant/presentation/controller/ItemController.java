@@ -7,6 +7,8 @@ import br.com.fiap.restaurant.presentation.dto.response.ItemResponse;
 import br.com.fiap.restaurant.domain.model.User;
 import br.com.fiap.restaurant.application.usecase.item.CreateItemUseCase;
 import br.com.fiap.restaurant.application.usecase.item.DeleteItemUseCase;
+import br.com.fiap.restaurant.application.usecase.item.GetItemUseCase;
+import br.com.fiap.restaurant.application.usecase.item.ListRestaurantItemsUseCase;
 import br.com.fiap.restaurant.application.usecase.item.UpdateItemUseCase;
 import br.com.fiap.restaurant.presentation.presenter.ItemPresenter;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,12 +25,15 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 import static br.com.fiap.restaurant.presentation.common.ApiPaths.API_V1;
 
@@ -41,6 +46,36 @@ public class ItemController {
     private final CreateItemUseCase createItemUseCase;
     private final UpdateItemUseCase updateItemUseCase;
     private final DeleteItemUseCase deleteItemUseCase;
+    private final ListRestaurantItemsUseCase listRestaurantItemsUseCase;
+    private final GetItemUseCase getItemUseCase;
+
+    @Operation(summary = "List the active items of a restaurant's menu")
+    @ApiResponses({
+            @ApiResponse(responseCode = "401", description = "Missing or invalid bearer token",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(name = "Unauthenticated", value = ApiErrorExamples.UNAUTHENTICATED))),
+            @ApiResponse(responseCode = "404", description = "Restaurant not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(name = "Not found", value = ApiErrorExamples.ENTITY_NOT_FOUND)))
+    })
+    @GetMapping
+    public ResponseEntity<List<ItemResponse>> getItems(@PathVariable Long restaurantId) {
+        return ResponseEntity.ok(ItemPresenter.toResponse(listRestaurantItemsUseCase.execute(restaurantId)));
+    }
+
+    @Operation(summary = "Get an active item of a restaurant's menu")
+    @ApiResponses({
+            @ApiResponse(responseCode = "401", description = "Missing or invalid bearer token",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(name = "Unauthenticated", value = ApiErrorExamples.UNAUTHENTICATED))),
+            @ApiResponse(responseCode = "404", description = "Restaurant or item not found",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class),
+                            examples = @ExampleObject(name = "Not found", value = ApiErrorExamples.ENTITY_NOT_FOUND)))
+    })
+    @GetMapping("/{itemId}")
+    public ResponseEntity<ItemResponse> getItem(@PathVariable Long restaurantId, @PathVariable Long itemId) {
+        return ResponseEntity.ok(ItemPresenter.toResponse(getItemUseCase.execute(restaurantId, itemId)));
+    }
 
     @Operation(summary = "Create a new item for a restaurant")
     @ApiResponses({

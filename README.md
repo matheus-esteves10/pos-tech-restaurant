@@ -255,6 +255,7 @@ A busca por nome retorna `{ "content": [...], "page": 0, "size": 10, "totalEleme
 | POST | `/restaurant/{restaurantId}/employee/{userId}` | Adiciona funcionário | dono |
 | DELETE | `/restaurant/{restaurantId}/employee/{userId}` | Remove funcionário | dono |
 | PATCH | `/restaurant/{restaurantId}/owner/{userId}` | Promove um membro a dono | dono |
+| DELETE | `/restaurant/{restaurantId}` | Desativa o restaurante (soft delete) | dono |
 
 ```json
 // POST /api/v1/restaurant
@@ -266,9 +267,26 @@ A busca por nome retorna `{ "content": [...], "page": 0, "size": 10, "totalEleme
   "kitchenType": "ITALIAN_FOOD",
   "openingAt": "11:00:00",
   "closingAt": "23:00:00",
-  "addressRequest": { "street": "Rua B", "number": "45", "city": "São Paulo", "state": "SP", "zipCode": "01000-000" }
+  "address": { "street": "Rua B", "number": "45", "city": "São Paulo", "state": "SP", "zipCode": "01000-000" }
+}
+
+// 201 Created
+{
+  "id": 1,
+  "name": "Cantina da Nona",
+  "cnpj": "12345678000199",
+  "description": "Massas artesanais",
+  "phone": "11988887777",
+  "kitchenType": "ITALIAN_FOOD",
+  "openingAt": "11:00:00",
+  "closingAt": "23:00:00",
+  "address": { "street": "Rua B", "number": "45", "neighborhood": null, "city": "São Paulo", "state": "SP", "zipCode": "01000-000", "complement": null },
+  "owners": [ { "id": 1, "name": "João Silva", "login": "joao_silva" } ],
+  "items": []
 }
 ```
+
+Na criação são obrigatórios `name`, `cnpj`, `kitchenType`, `openingAt`, `closingAt` e `address` (com `street`, `number`, `city`, `state` e `zipCode`). No `PATCH`, só os campos enviados são alterados, inclusive dentro de `address`. `owners` lista o dono e quem foi promovido; `items` traz apenas os itens ativos.
 
 Tipos de cozinha: `ITALIAN_FOOD`, `BRAZILIAN_FOOD`, `JAPANESE_FOOD`, `MEXICAN_FOOD`, `CHINESE_FOOD`, `ARABIC_FOOD`, `FAST_FOOD`, `VEGAN_FOOD`, `OTHER`.
 
@@ -276,6 +294,8 @@ Tipos de cozinha: `ITALIAN_FOOD`, `BRAZILIAN_FOOD`, `JAPANESE_FOOD`, `MEXICAN_FO
 
 | Método | Rota | Descrição | Acesso |
 |---|---|---|---|
+| GET | `/restaurant/{restaurantId}/item` | Lista o cardápio (itens ativos) | autenticado |
+| GET | `/restaurant/{restaurantId}/item/{itemId}` | Busca um item | autenticado |
 | POST | `/restaurant/{restaurantId}/item` | Cria item | membro |
 | PATCH | `/restaurant/{restaurantId}/item/{itemId}` | Atualiza item | membro |
 | DELETE | `/restaurant/{restaurantId}/item/{itemId}` | Desativa item (soft delete) | membro |
@@ -308,6 +328,14 @@ Tipos de cozinha: `ITALIAN_FOOD`, `BRAZILIAN_FOOD`, `JAPANESE_FOOD`, `MEXICAN_FO
 ```
 
 Só pedidos `IN_PROGRESS` podem ser entregues ou cancelados.
+
+### Exclusão lógica (soft delete)
+
+Usuários, restaurantes e itens não são apagados do banco: a exclusão marca o registro como inativo (`enabled = false`). A partir daí:
+
+- **Item deletado**: some do cardápio e do restaurante, retorna 404 e não pode ser editado nem incluído em pedidos. Pedidos antigos continuam mostrando o item.
+- **Restaurante deletado**: some da listagem, e ele e seus itens, pedidos e funcionários retornam 404.
+- **Usuário desativado**: não consegue fazer login, o token emitido antes deixa de valer (401), e ele some das listagens e buscas.
 
 ---
 

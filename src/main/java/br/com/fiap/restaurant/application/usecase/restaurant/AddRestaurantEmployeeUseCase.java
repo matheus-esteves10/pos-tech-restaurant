@@ -20,11 +20,11 @@ public class AddRestaurantEmployeeUseCase {
     }
 
     public RestaurantMembership execute(Long restaurantId, Long userId, User authenticatedUser) {
-        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+        Restaurant restaurant = restaurantRepository.findActiveById(restaurantId)
                 .orElseThrow(EntityNotFoundException::new);
         restaurant.ensureOwner(authenticatedUser);
 
-        User employee = userRepository.findById(userId)
+        User employee = userRepository.findActiveById(userId)
                 .orElseThrow(EntityNotFoundException::new);
         restaurant.addEmployee(employee);
 

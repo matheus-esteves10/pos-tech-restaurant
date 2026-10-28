@@ -37,8 +37,8 @@ public class UserRepositoryAdapter implements UserRepository {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<User> findById(Long id) {
-        return userJpaRepository.findById(id).map(PersistenceMapper::toDomain);
+    public Optional<User> findActiveById(Long id) {
+        return userJpaRepository.findByIdAndEnabledTrue(id).map(PersistenceMapper::toDomain);
     }
 
     @Override
@@ -49,16 +49,16 @@ public class UserRepositoryAdapter implements UserRepository {
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> findAll() {
-        return userJpaRepository.findAll().stream()
+    public List<User> findAllActive() {
+        return userJpaRepository.findAllByEnabledTrue().stream()
                 .map(PersistenceMapper::toDomain)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PageResult<User> findByName(String name, int page, int size) {
-        Page<UserEntity> result = userJpaRepository.findByNameIgnoreCase(
+    public PageResult<User> findActiveByName(String name, int page, int size) {
+        Page<UserEntity> result = userJpaRepository.findByNameIgnoreCaseAndEnabledTrue(
                 name, PageRequest.of(page, size, Sort.by("name").ascending()));
 
         return new PageResult<>(

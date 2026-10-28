@@ -39,14 +39,15 @@ public class ItemRepositoryAdapter implements ItemRepository {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Item> findByIdAndRestaurantId(Long itemId, Long restaurantId) {
-        return itemJpaRepository.findByIdAndRestaurantId(itemId, restaurantId).map(PersistenceMapper::toDomain);
+    public Optional<Item> findActiveByIdAndRestaurantId(Long itemId, Long restaurantId) {
+        return itemJpaRepository.findByIdAndRestaurantIdAndEnabledTrue(itemId, restaurantId)
+                .map(PersistenceMapper::toDomain);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Item> findAllByRestaurantId(Long restaurantId) {
-        return itemJpaRepository.findAllByRestaurantId(restaurantId).stream()
+    public List<Item> findAllActiveByRestaurantId(Long restaurantId) {
+        return itemJpaRepository.findAllByRestaurantIdAndEnabledTrue(restaurantId).stream()
                 .map(PersistenceMapper::toDomain)
                 .toList();
     }

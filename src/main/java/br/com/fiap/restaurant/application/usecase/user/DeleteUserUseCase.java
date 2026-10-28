@@ -15,7 +15,7 @@ public class DeleteUserUseCase {
     }
 
     public void execute(User authenticatedUser) {
-        User user = userRepository.findById(authenticatedUser.getId())
+        User user = userRepository.findActiveById(authenticatedUser.getId())
                 .orElseThrow(EntityNotFoundException::new);
 
         user.disable();

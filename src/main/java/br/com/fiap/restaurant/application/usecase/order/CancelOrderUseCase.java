@@ -19,7 +19,7 @@ public class CancelOrderUseCase {
     }
 
     public void execute(Long restaurantId, Long orderId, User authenticatedUser) {
-        restaurantRepository.findById(restaurantId)
+        restaurantRepository.findActiveById(restaurantId)
                 .orElseThrow(EntityNotFoundException::new)
                 .ensureMember(authenticatedUser);
 

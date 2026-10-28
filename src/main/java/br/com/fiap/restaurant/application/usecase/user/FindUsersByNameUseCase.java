@@ -16,7 +16,7 @@ public class FindUsersByNameUseCase {
     }
 
     public PageResult<User> execute(String name, int page, int size) {
-        PageResult<User> users = userRepository.findByName(name, page, size);
+        PageResult<User> users = userRepository.findActiveByName(name, page, size);
         if (users.isEmpty()) {
             throw new EntityNotFoundException();
         }

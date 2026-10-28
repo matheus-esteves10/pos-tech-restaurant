@@ -26,11 +26,11 @@ public class CreateOrderUseCase {
     }
 
     public Order execute(Long restaurantId, List<Long> itemIds, User authenticatedUser) {
-        restaurantRepository.findById(restaurantId)
+        restaurantRepository.findActiveById(restaurantId)
                 .orElseThrow(EntityNotFoundException::new);
 
         List<Item> items = itemIds.stream()
-                .map(itemId -> itemRepository.findByIdAndRestaurantId(itemId, restaurantId)
+                .map(itemId -> itemRepository.findActiveByIdAndRestaurantId(itemId, restaurantId)
                         .orElseThrow(EntityNotFoundException::new))
                 .toList();
 

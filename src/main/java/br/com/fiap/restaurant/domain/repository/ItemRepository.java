@@ -9,7 +9,7 @@ public interface ItemRepository {
 
     Item save(Item item);
 
-    Optional<Item> findByIdAndRestaurantId(Long itemId, Long restaurantId);
+    Optional<Item> findActiveByIdAndRestaurantId(Long itemId, Long restaurantId);
 
-    List<Item> findAllByRestaurantId(Long restaurantId);
+    List<Item> findAllActiveByRestaurantId(Long restaurantId);
 }

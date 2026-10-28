@@ -15,7 +15,7 @@ public class GetUserUseCase {
     }
 
     public User execute(Long userId) {
-        return userRepository.findById(userId)
+        return userRepository.findActiveById(userId)
                 .orElseThrow(EntityNotFoundException::new);
     }
 }

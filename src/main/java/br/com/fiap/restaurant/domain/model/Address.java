@@ -8,6 +8,14 @@ public record Address(String street,
                       String zipCode,
                       String complement) {
 
+    public void ensureComplete() {
+        Guard.requireText(street, "Address street");
+        Guard.requireText(number, "Address number");
+        Guard.requireText(city, "Address city");
+        Guard.requireText(state, "Address state");
+        Guard.requireText(zipCode, "Address zip code");
+    }
+
     public Address mergedWith(Address changes) {
         if (changes == null) {
             return this;

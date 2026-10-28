@@ -3,6 +3,7 @@ package br.com.fiap.restaurant.presentation.controller;
 import br.com.fiap.restaurant.application.usecase.restaurant.AddRestaurantEmployeeUseCase;
 import br.com.fiap.restaurant.application.usecase.restaurant.CreateRestaurantCommand;
 import br.com.fiap.restaurant.application.usecase.restaurant.CreateRestaurantUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.DeleteRestaurantUseCase;
 import br.com.fiap.restaurant.application.usecase.restaurant.GetRestaurantUseCase;
 import br.com.fiap.restaurant.application.usecase.restaurant.ListRestaurantEmployeesUseCase;
 import br.com.fiap.restaurant.application.usecase.restaurant.ListRestaurantsUseCase;
@@ -45,6 +46,7 @@ class RestaurantControllerTest {
     @Mock AddRestaurantEmployeeUseCase addRestaurantEmployeeUseCase;
     @Mock RemoveRestaurantEmployeeUseCase removeRestaurantEmployeeUseCase;
     @Mock SetRestaurantOwnerUseCase setRestaurantOwnerUseCase;
+    @Mock DeleteRestaurantUseCase deleteRestaurantUseCase;
     @InjectMocks RestaurantController controller;
 
     private final User owner = Fixtures.user(1L, "owner");
@@ -62,7 +64,11 @@ class RestaurantControllerTest {
         assertEquals(10L, response.id());
         assertEquals("Cafe", response.name());
         assertEquals(KitchenType.BRAZILIAN_FOOD, response.kitchenType());
-        assertEquals("Sao Paulo", response.addressRequest().city());
+        assertEquals("Sao Paulo", response.address().city());
+        assertEquals(1, response.owners().size());
+        assertEquals(1L, response.owners().getFirst().id());
+        assertEquals("owner", response.owners().getFirst().login());
+        assertEquals("User owner", response.owners().getFirst().name());
         assertEquals("Burger", response.items().getFirst().name());
         assertEquals("DELIVERY_OR_IN_PERSON", response.items().getFirst().itemType());
     }
@@ -108,5 +114,11 @@ class RestaurantControllerTest {
         assertNull(removed.userType());
         assertEquals(HttpStatus.OK, controller.setUserAsOwner(10L, owner, 2L).getStatusCode());
         verify(setRestaurantOwnerUseCase).execute(10L, 2L, owner);
+    }
+
+    @Test
+    void deletesRestaurant() {
+        assertEquals(HttpStatus.NO_CONTENT, controller.deleteRestaurant(10L, owner).getStatusCode());
+        verify(deleteRestaurantUseCase).execute(10L, owner);
     }
 }

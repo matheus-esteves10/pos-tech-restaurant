@@ -61,22 +61,22 @@ class UserRepositoryAdapterTest {
     @Test
     void findsUsers() {
         UserEntity entity = EntityFixtures.user(1L, "jane");
-        when(jpaRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(jpaRepository.findByIdAndEnabledTrue(1L)).thenReturn(Optional.of(entity));
         when(jpaRepository.findByLogin("jane")).thenReturn(Optional.of(entity));
-        when(jpaRepository.findAll()).thenReturn(List.of(entity));
+        when(jpaRepository.findAllByEnabledTrue()).thenReturn(List.of(entity));
 
-        assertEquals("jane", adapter.findById(1L).orElseThrow().getLogin());
+        assertEquals("jane", adapter.findActiveById(1L).orElseThrow().getLogin());
         assertEquals(1L, adapter.findByLogin("jane").orElseThrow().getId());
-        assertEquals(1, adapter.findAll().size());
+        assertEquals(1, adapter.findAllActive().size());
     }
 
     @Test
     void findsUsersByNameSortedAndPaged() {
         PageRequest pageable = PageRequest.of(0, 5, Sort.by("name").ascending());
-        when(jpaRepository.findByNameIgnoreCase("jane", pageable))
+        when(jpaRepository.findByNameIgnoreCaseAndEnabledTrue("jane", pageable))
                 .thenReturn(new PageImpl<>(List.of(EntityFixtures.user(1L, "jane")), pageable, 1));
 
-        PageResult<User> page = adapter.findByName("jane", 0, 5);
+        PageResult<User> page = adapter.findActiveByName("jane", 0, 5);
 
         assertEquals(1, page.content().size());
         assertEquals(0, page.page());

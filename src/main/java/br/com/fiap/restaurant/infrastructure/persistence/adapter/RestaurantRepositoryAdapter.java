@@ -46,14 +46,14 @@ public class RestaurantRepositoryAdapter implements RestaurantRepository {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Restaurant> findById(Long id) {
-        return restaurantJpaRepository.findById(id).map(PersistenceMapper::toDomain);
+    public Optional<Restaurant> findActiveById(Long id) {
+        return restaurantJpaRepository.findByIdAndEnabledTrue(id).map(PersistenceMapper::toDomain);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Restaurant> findAll() {
-        return restaurantJpaRepository.findAll().stream()
+    public List<Restaurant> findAllActive() {
+        return restaurantJpaRepository.findAllByEnabledTrue().stream()
                 .map(PersistenceMapper::toDomain)
                 .toList();
     }

@@ -18,7 +18,7 @@ public class UpdateUserPasswordUseCase {
     }
 
     public User execute(User authenticatedUser, String newPassword) {
-        User user = userRepository.findById(authenticatedUser.getId())
+        User user = userRepository.findActiveById(authenticatedUser.getId())
                 .orElseThrow(EntityNotFoundException::new);
 
         user.changePassword(passwordEncoder.encode(newPassword));

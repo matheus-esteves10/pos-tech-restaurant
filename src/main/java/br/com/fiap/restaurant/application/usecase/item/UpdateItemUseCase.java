@@ -19,11 +19,11 @@ public class UpdateItemUseCase {
     }
 
     public Item execute(Long restaurantId, Long itemId, ItemCommand command, User authenticatedUser) {
-        restaurantRepository.findById(restaurantId)
+        restaurantRepository.findActiveById(restaurantId)
                 .orElseThrow(EntityNotFoundException::new)
                 .ensureMember(authenticatedUser);
 
-        Item item = itemRepository.findByIdAndRestaurantId(itemId, restaurantId)
+        Item item = itemRepository.findActiveByIdAndRestaurantId(itemId, restaurantId)
                 .orElseThrow(EntityNotFoundException::new);
 
         item.update(command.name(), command.description(), command.value(), command.imageUrl(), command.itemType());

@@ -20,7 +20,7 @@ public class CreateItemUseCase {
     }
 
     public Item execute(Long restaurantId, ItemCommand command, User authenticatedUser) {
-        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+        Restaurant restaurant = restaurantRepository.findActiveById(restaurantId)
                 .orElseThrow(EntityNotFoundException::new);
         restaurant.ensureMember(authenticatedUser);
 

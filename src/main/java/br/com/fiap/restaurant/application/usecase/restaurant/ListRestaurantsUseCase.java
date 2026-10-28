@@ -18,9 +18,9 @@ public class ListRestaurantsUseCase {
     }
 
     public List<RestaurantDetails> execute() {
-        return restaurantRepository.findAll().stream()
+        return restaurantRepository.findAllActive().stream()
                 .map(restaurant -> new RestaurantDetails(restaurant,
-                        itemRepository.findAllByRestaurantId(restaurant.getId())))
+                        itemRepository.findAllActiveByRestaurantId(restaurant.getId())))
                 .toList();
     }
 }
