@@ -1,7 +1,15 @@
 package br.com.fiap.restaurant.domain.repository;
 
-import br.com.fiap.restaurant.domain.entity.Restaurant;
-import org.springframework.data.jpa.repository.JpaRepository;
+import br.com.fiap.restaurant.domain.model.Restaurant;
 
-public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
+import java.util.List;
+import java.util.Optional;
+
+public interface RestaurantRepository {
+
+    Restaurant save(Restaurant restaurant);
+
+    Optional<Restaurant> findById(Long id);
+
+    List<Restaurant> findAll();
 }

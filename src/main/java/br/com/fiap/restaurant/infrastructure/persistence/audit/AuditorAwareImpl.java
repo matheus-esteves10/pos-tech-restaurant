@@ -1,6 +1,5 @@
 package br.com.fiap.restaurant.infrastructure.persistence.audit;
 
-import br.com.fiap.restaurant.domain.entity.User;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,6 +8,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Optional;
 
 public class AuditorAwareImpl implements AuditorAware<String> {
+
+    private static final String ANONYMOUS_USER = "anonymousUser";
 
     @Override
     public Optional<String> getCurrentAuditor() {
@@ -19,13 +20,10 @@ public class AuditorAwareImpl implements AuditorAware<String> {
         }
 
         Object principal = authentication.getPrincipal();
-        if (principal instanceof User currentUser) {
-            return Optional.ofNullable(currentUser.getLogin());
-        }
         if (principal instanceof UserDetails userDetails) {
-            return Optional.of(userDetails.getUsername());
+            return Optional.ofNullable(userDetails.getUsername());
         }
-        if (principal instanceof String username && !"anonymousUser".equals(username)) {
+        if (principal instanceof String username && !ANONYMOUS_USER.equals(username)) {
             return Optional.of(username);
         }
 

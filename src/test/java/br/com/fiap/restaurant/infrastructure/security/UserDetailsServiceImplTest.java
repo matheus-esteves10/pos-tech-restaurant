@@ -1,7 +1,8 @@
 package br.com.fiap.restaurant.infrastructure.security;
 
-import br.com.fiap.restaurant.domain.entity.User;
+import br.com.fiap.restaurant.domain.model.User;
 import br.com.fiap.restaurant.domain.repository.UserRepository;
+import br.com.fiap.restaurant.support.Fixtures;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,10 +20,11 @@ class UserDetailsServiceImplTest {
     @Mock UserRepository repository;
     @InjectMocks UserDetailsServiceImpl service;
 
-    @Test void loadsUserByLogin() {
-        User user = User.builder().login("jane").build();
+    @Test void loadsUserByLoginWrappedAsPrincipal() {
+        User user = Fixtures.user(1L, "jane");
         when(repository.findByLogin("jane")).thenReturn(Optional.of(user));
-        assertSame(user, service.loadUserByUsername("jane"));
+        AuthenticatedUser principal = (AuthenticatedUser) service.loadUserByUsername("jane");
+        assertSame(user, principal.getUser());
     }
 
     @Test void reportsUnknownLogin() {

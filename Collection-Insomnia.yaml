@@ -4,170 +4,157 @@ name: post-tech-restaurant
 meta:
   id: wrk_5509113dfe944565b203b1ffce53d20c
   created: 1792113122568
-  modified: 1792113122568
-  description: ""
+  modified: 1792800000000
+  description: |-
+    Collection da Restaurant API (Tech Challenge Fase 2).
+
+    Ordem sugerida num banco limpo: User > Create Owner User, Create Employee User, Login;
+    Restaurant > Create Restaurant; Item > Create Item; Order > Create Order.
+    Os scripts after-response salvam token e IDs no ambiente, usados pelas demais requisições.
 collection:
   - name: post-tech-restaurant
     meta:
       id: fld_959a974c26a5471ca34f538a2bbec1f0
       created: 1792113122570
-      modified: 1792113122570
-      sortKey: -1792113121023
+      modified: 1792800000000
+      sortKey: 1000
       description: ""
     children:
-      - name: Order
+      - name: User
         meta:
-          id: fld_6c4eec5914384512b6cc89a9258185a6
-          created: 1792113122570
-          modified: 1792113122570
-          sortKey: -1792113121022
+          id: fld_e335d58d58654cb8ac305dc828f8ab23
+          created: 1792113122578
+          modified: 1792800000000
+          sortKey: 1000
           description: ""
         children:
-          - url: http://localhost:8080/api/v1/restaurant/7/order
-            name: Get orders
+          - url: "{{ _.baseUrl }}/users"
+            name: Create Owner User
             meta:
-              id: req_76028144a6d74781b8e35f98ca1e0f66
-              created: 1792113122571
-              modified: 1792113122571
+              id: req_6e467d4d7b4e438c999990eab46f2ae9
+              created: 1792113122578
+              modified: 1792800000000
+              isPrivate: false
+              description: Cadastro público. Salva o id em userId.
+              sortKey: 1000
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Maria Owner",
+                  "email": "maria.owner@email.com",
+                  "login": "maria.owner",
+                  "phone": "11987654321",
+                  "password": "welcome123",
+                  "address": {
+                    "street": "Av. Paulista",
+                    "number": "1106",
+                    "neighborhood": "Bela Vista",
+                    "city": "São Paulo",
+                    "state": "SP",
+                    "zipCode": "01311000"
+                  }
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            scripts:
+              afterResponse: |-
+                if (insomnia.response.code === 201) {
+                  insomnia.environment.set("userId", insomnia.response.json().id);
+                }
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/users"
+            name: Create Employee User
+            meta:
+              id: req_1f0b6c2e9a4d4b7f8e3c5a6d7b8c9d01
+              created: 1792800000000
+              modified: 1792800000000
+              isPrivate: false
+              description: Segundo usuário, usado como funcionário. Salva o id em employeeId.
+              sortKey: 2000
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Joao Employee",
+                  "email": "joao.employee@email.com",
+                  "login": "joao.employee",
+                  "phone": "11987654322",
+                  "password": "welcome123"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            scripts:
+              afterResponse: |-
+                if (insomnia.response.code === 201) {
+                  insomnia.environment.set("employeeId", insomnia.response.json().id);
+                }
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/auth/login"
+            name: Login
+            meta:
+              id: req_87932a2258ca44c9ab03c42d66c82b16
+              created: 1792113122579
+              modified: 1792800000000
+              isPrivate: false
+              description: Autentica e salva o JWT em token.
+              sortKey: 3000
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "login": "maria.owner",
+                  "password": "welcome123"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            scripts:
+              afterResponse: |-
+                if (insomnia.response.code === 200) {
+                  insomnia.environment.set("token", insomnia.response.json().token);
+                }
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/users"
+            name: Get Users
+            meta:
+              id: req_8d48d63679384fbd9778d8bb48778e8b
+              created: 1792113122579
+              modified: 1792800000000
               isPrivate: false
               description: ""
-              sortKey: -1792113121020
+              sortKey: 4000
             method: GET
-            headers:
-              - name: Content-Type
-                value: application/json
             authentication:
               type: bearer
               disabled: false
-              token: "{{supabase_service_role_api_key_0yyb}}"
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: http://localhost:8080/api/v1/restaurant/7/order
-            name: Create order
-            meta:
-              id: req_83e3edbe6a974b92be734ba4e8e65b92
-              created: 1792113122571
-              modified: 1792113122571
-              isPrivate: false
-              description: ""
-              sortKey: -1792113121021
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                  "itemIds": [1, 2, 3]
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-            authentication:
-              type: bearer
-              disabled: false
-              token: ""
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: http://localhost:8080/api/v1/restaurant/7/order/1/cancel
-            name: Cancel Order
-            meta:
-              id: req_2128fe998aae4be4a5e51bd25efb0096
-              created: 1792113122572
-              modified: 1792113122572
-              isPrivate: false
-              description: ""
-              sortKey: -1792113121019
-            method: PATCH
-            headers:
-              - name: Content-Type
-                value: application/json
-            authentication:
-              type: bearer
-              disabled: false
-              token: "{{supabase_service_role_api_key_0yyb}}"
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: http://localhost:8080/api/v1/restaurant/7/order/2/deliver
-            name: Set Delivered Order
-            meta:
-              id: req_6044278707f349f3b22019ab30e3b58e
-              created: 1792113122573
-              modified: 1792113122573
-              isPrivate: false
-              description: ""
-              sortKey: -1792113121018
-            method: PATCH
-            headers:
-              - name: Content-Type
-                value: application/json
-            authentication:
-              type: bearer
-              disabled: false
-              token: "{{supabase_service_role_api_key_0yyb}}"
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-      - name: Item
-        meta:
-          id: fld_d90703283c34406c8f84d5dfe29e0c73
-          created: 1792113122573
-          modified: 1792113122573
-          sortKey: -1792113121017
-          description: ""
-        children:
-          - url: http://localhost:8080/api/v1/restaurant/1/item
-            name: Create Item
-            meta:
-              id: req_29d8971d696f4c53addeb691b494304f
-              created: 1792113122574
-              modified: 1792114105372
-              isPrivate: false
-              description: ""
-              sortKey: -1792113121016
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                  "name": "Coca cola 600ML",
-                  "description": "",
-                  "value": 12.00,
-                	"imageUrl": "http://testUrl",
-                	"itemType": "JUST_DELIVERY"
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              token: "{{ _.token }}"
               prefix: Bearer
             settings:
               renderRequestBody: true
@@ -177,33 +164,20 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: http://localhost:8080/api/v1/restaurant/1/item/2
-            name: Update Item
+          - url: "{{ _.baseUrl }}/users/{{ _.userId }}"
+            name: Get User by id
             meta:
-              id: req_4ee77ab00fa842748fc02f254639e83a
-              created: 1792113122574
-              modified: 1792114774235
+              id: req_67109ff1eda04b899b52a6c6e259bd5f
+              created: 1792113122579
+              modified: 1792800000000
               isPrivate: false
               description: ""
-              sortKey: -1792113121015
-            method: PATCH
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                  "name": "Coca 600ml",
-                  "description": "",
-                  "value": 12.00,
-                	"imageUrl": "https://test2iomefoqwef.com",
-                	"itemType":"JUST_IN_PERSON"
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
+              sortKey: 5000
+            method: GET
             authentication:
               type: bearer
               disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTQyNzYsImV4cCI6MTc5MjExNzg3NiwiaWQiOjF9.YFB3HmnA8IZgP0PCsEz8qLm_i2nWJhY7MrJArBLgOZY
+              token: "{{ _.token }}"
               prefix: Bearer
             settings:
               renderRequestBody: true
@@ -213,24 +187,117 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: http://localhost:8080/api/v1/restaurant/7/item/3
-            name: Delete Item
+          - url: "{{ _.baseUrl }}/users/name/Maria Owner"
+            name: Get Users by Name
             meta:
-              id: req_6798076cec3c4279bcdb3893b9780ad9
-              created: 1792113122575
-              modified: 1792113122575
+              id: req_9307adff586d4a0293d7f7d87242a477
+              created: 1792113287583
+              modified: 1792800000000
               isPrivate: false
-              description: ""
-              sortKey: -1792113121014
+              description: Busca paginada por nome exato (sem diferenciar maiúsculas).
+              sortKey: 6000
+            method: GET
+            parameters:
+              - name: page
+                value: "0"
+              - name: size
+                value: "10"
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{ _.token }}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/users/me"
+            name: Update User
+            meta:
+              id: req_3cb5b7ab83be48d68b4942dafacad156
+              created: 1792113122580
+              modified: 1792800000000
+              isPrivate: false
+              description: Atualiza apenas os campos enviados (email, login, phone, address).
+              sortKey: 7000
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "phone": "11911112222",
+                  "address": {
+                    "number": "2000",
+                    "complement": "Sala 10"
+                  }
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{ _.token }}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/users/me/password"
+            name: Update User Password
+            meta:
+              id: req_a2686cf0999c433c80ec2966bd6f5fb4
+              created: 1792113122580
+              modified: 1792800000000
+              isPrivate: false
+              description: Depois desta chamada, faça login com a nova senha.
+              sortKey: 8000
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "password": "welcome456"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{ _.token }}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/users/me"
+            name: Delete User (soft delete)
+            meta:
+              id: req_2338d87bb07d41fc83daac154f406073
+              created: 1792113122579
+              modified: 1792800000000
+              isPrivate: false
+              description: Desativa a conta do usuário autenticado; ele não consegue mais fazer login.
+              sortKey: 9000
             method: DELETE
-            headers:
-              - name: Content-Type
-                value: application/json
             authentication:
               type: bearer
               disabled: false
-              token: ""
-              prefix: ""
+              token: "{{ _.token }}"
+              prefix: Bearer
             settings:
               renderRequestBody: true
               encodeUrl: true
@@ -243,49 +310,23 @@ collection:
         meta:
           id: fld_ed336b0ab86648af8d427589eecdf937
           created: 1792113122575
-          modified: 1792113122575
-          sortKey: -1792113121013
+          modified: 1792800000000
+          sortKey: 2000
           description: ""
         children:
-          - url: http://localhost:8080/api/v1/restaurant
-            name: Get Restaurants
-            meta:
-              id: req_07711d1c12174e39a531155986142574
-              created: 1792113122576
-              modified: 1792113251511
-              isPrivate: false
-              description: ""
-              sortKey: -1792113121011
-            method: GET
-            headers:
-              - name: Content-Type
-                value: application/json
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
-              prefix: Bearer
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: http://localhost:8080/api/v1/restaurant
+          - url: "{{ _.baseUrl }}/restaurant"
             name: Create Restaurant
             meta:
               id: req_50225507c52740abbaf46967751bb1e5
               created: 1792113122576
-              modified: 1792114096511
+              modified: 1792800000000
               isPrivate: false
-              description: ""
-              sortKey: -1792113121012
+              description: O usuário autenticado vira dono. Salva o id em restaurantId.
+              sortKey: 1000
             method: POST
             body:
               mimeType: application/json
-              text: >-
+              text: |-
                 {
                   "name": "Cantina Bella Vista",
                   "cnpj": "98765432000145",
@@ -310,7 +351,35 @@ collection:
             authentication:
               type: bearer
               disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              token: "{{ _.token }}"
+              prefix: Bearer
+            scripts:
+              afterResponse: |-
+                if (insomnia.response.code === 201) {
+                  insomnia.environment.set("restaurantId", insomnia.response.json().id);
+                }
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/restaurant"
+            name: Get Restaurants
+            meta:
+              id: req_07711d1c12174e39a531155986142574
+              created: 1792113122576
+              modified: 1792800000000
+              isPrivate: false
+              description: ""
+              sortKey: 2000
+            method: GET
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{ _.token }}"
               prefix: Bearer
             settings:
               renderRequestBody: true
@@ -320,15 +389,38 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: http://localhost:8080/api/v1/restaurant/3
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}"
+            name: Get Restaurant by id
+            meta:
+              id: req_f050cc5e686745f7a48de00417365b50
+              created: 1792113122577
+              modified: 1792800000000
+              isPrivate: false
+              description: ""
+              sortKey: 3000
+            method: GET
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{ _.token }}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}"
             name: Update Restaurant
             meta:
               id: req_6d7ed027866f468e99d418a52c3a208f
               created: 1792113122577
-              modified: 1792113122577
+              modified: 1792800000000
               isPrivate: false
-              description: ""
-              sortKey: -1792113121009
+              description: Somente donos. Atualiza apenas os campos enviados.
+              sortKey: 4000
             method: PATCH
             body:
               mimeType: application/json
@@ -343,59 +435,7 @@ collection:
             authentication:
               type: bearer
               disabled: false
-              token: ""
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: http://localhost:8080/api/v1/restaurant/3/employee/6
-            name: Add user in Restaurant
-            meta:
-              id: req_85290ac633b6421692a5f66c6e8b3479
-              created: 1792113122577
-              modified: 1792113122577
-              isPrivate: false
-              description: ""
-              sortKey: -1792113121008
-            method: POST
-            headers:
-              - name: Content-Type
-                value: application/json
-            authentication:
-              type: bearer
-              disabled: false
-              token: ""
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: http://localhost:8080/api/v1/restaurant/1
-            name: Get Restaurant by id
-            meta:
-              id: req_f050cc5e686745f7a48de00417365b50
-              created: 1792113122577
-              modified: 1792113416643
-              isPrivate: false
-              description: ""
-              sortKey: -1792113121010
-            method: GET
-            headers:
-              - name: Content-Type
-                value: application/json
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              token: "{{ _.token }}"
               prefix: Bearer
             settings:
               renderRequestBody: true
@@ -405,23 +445,43 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: http://localhost:8080/api/v1/restaurant/1/employee
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/employee/{{ _.employeeId }}"
+            name: Add Employee to Restaurant
+            meta:
+              id: req_85290ac633b6421692a5f66c6e8b3479
+              created: 1792113122577
+              modified: 1792800000000
+              isPrivate: false
+              description: Somente donos. Vincula o usuário employeeId como funcionário.
+              sortKey: 5000
+            method: POST
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{ _.token }}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/employee"
             name: Get Restaurant Employees
             meta:
               id: req_2b08c5c2f2fe488b9fdbfbd1c7c98d6a
               created: 1792113122577
-              modified: 1792113122577
+              modified: 1792800000000
               isPrivate: false
-              description: ""
-              sortKey: -1792113121009.5
+              description: Somente membros (dono ou funcionário).
+              sortKey: 6000
             method: GET
-            headers:
-              - name: Content-Type
-                value: application/json
             authentication:
               type: bearer
               disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              token: "{{ _.token }}"
               prefix: Bearer
             settings:
               renderRequestBody: true
@@ -431,68 +491,21 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: http://localhost:8080/api/v1/restaurant/3/employee/6
-            name: Remove user in Restaurant
-            meta:
-              id: req_0975e8de844146bbae21b1192f9d5f28
-              created: 1792113122578
-              modified: 1792113122578
-              isPrivate: false
-              description: ""
-              sortKey: -1792113121006
-            method: DELETE
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                  "name": "Pé de Fava",
-                  "cnpj": "12345678000198",
-                  "description": "Restaurante do Pesadelo na Cozinha",
-                  "phone": "11987654322",
-                  "addressRequest": {
-                    "street": "Rua do Jackam",
-                    "number": "123",
-                    "neighborhood": "Centro",
-                    "city": "São Paulo",
-                    "state": "SP",
-                    "zipCode": "01001000",
-                    "complement": "1 andar"
-                  }
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-            authentication:
-              type: bearer
-              disabled: false
-              token: ""
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: http://localhost:8080/api/v1/restaurant/7/owner/4
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/owner/{{ _.employeeId }}"
             name: Set Owner in Restaurant
             meta:
               id: req_a71ae39a1a5d47d8a80c74be5f01a422
               created: 1792113122578
-              modified: 1792113122578
+              modified: 1792800000000
               isPrivate: false
-              description: ""
-              sortKey: -1792113121007
+              description: Somente donos. Promove um membro do restaurante a dono.
+              sortKey: 7000
             method: PATCH
-            headers:
-              - name: Content-Type
-                value: application/json
             authentication:
               type: bearer
               disabled: false
-              token: ""
-              prefix: ""
+              token: "{{ _.token }}"
+              prefix: Bearer
             settings:
               renderRequestBody: true
               encodeUrl: true
@@ -501,93 +514,20 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-      - name: User
-        meta:
-          id: fld_e335d58d58654cb8ac305dc828f8ab23
-          created: 1792113122578
-          modified: 1792113122578
-          sortKey: -1792113121005
-          description: ""
-        children:
-          - url: http://localhost:8080/api/v1/users
-            name: Create User
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/employee/{{ _.employeeId }}"
+            name: Remove Employee from Restaurant
             meta:
-              id: req_6e467d4d7b4e438c999990eab46f2ae9
+              id: req_0975e8de844146bbae21b1192f9d5f28
               created: 1792113122578
-              modified: 1792113308547
+              modified: 1792800000000
               isPrivate: false
-              description: ""
-              sortKey: -1792113121004
-            method: POST
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                    "name": "MatheusEployee",
-                    "email": "matheus.employee@email.com",
-                    "login": "matheusEmployee",
-                    "phone": "11987654345",
-                    "password": "welcome1",
-                    "address": {
-                        "street": "Av. Paulista",
-                        "number": "1106",
-                        "neighborhood": "Campo Limpo",
-                        "city": "São Paulo",
-                        "state": "SP",
-                        "zipCode": "string"
-                    }
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: http://localhost:8080/api/v1/users/me
-            name: soft delete
-            meta:
-              id: req_2338d87bb07d41fc83daac154f406073
-              created: 1792113122579
-              modified: 1792113122579
-              isPrivate: false
-              description: ""
-              sortKey: -1792113121000
+              description: Somente donos.
+              sortKey: 8000
             method: DELETE
             authentication:
               type: bearer
               disabled: false
-              token: ""
-              prefix: ""
-            settings:
-              renderRequestBody: true
-              encodeUrl: true
-              followRedirects: global
-              cookies:
-                send: true
-                store: true
-              rebuildPath: true
-          - url: http://localhost:8080/api/v1/users/1
-            name: Get User by id
-            meta:
-              id: req_67109ff1eda04b899b52a6c6e259bd5f
-              created: 1792113122579
-              modified: 1792113221623
-              isPrivate: false
-              description: ""
-              sortKey: -1792113121002
-            method: GET
-            headers:
-              - name: Content-Type
-                value: application/json
-            authentication:
-              type: bearer
-              disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              token: "{{ _.token }}"
               prefix: Bearer
             settings:
               renderRequestBody: true
@@ -597,26 +537,49 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: http://localhost:8080/api/v1/auth/login
-            name: Login
+      - name: Item
+        meta:
+          id: fld_d90703283c34406c8f84d5dfe29e0c73
+          created: 1792113122573
+          modified: 1792800000000
+          sortKey: 3000
+          description: ""
+        children:
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/item"
+            name: Create Item
             meta:
-              id: req_87932a2258ca44c9ab03c42d66c82b16
-              created: 1792113122579
-              modified: 1792113170753
+              id: req_29d8971d696f4c53addeb691b494304f
+              created: 1792113122574
+              modified: 1792800000000
               isPrivate: false
-              description: ""
-              sortKey: -1792113121001
+              description: |-
+                Somente membros. Salva o id em itemId.
+                itemType: JUST_IN_PERSON (apenas no local), JUST_DELIVERY ou DELIVERY_OR_IN_PERSON (padrão).
+              sortKey: 1000
             method: POST
             body:
               mimeType: application/json
               text: |-
                 {
-                  "login": "matheusEmployee",
-                  "password": "welcome1"
+                  "name": "Lasanha à bolonhesa",
+                  "description": "Massa fresca com molho de carne",
+                  "value": 59.90,
+                  "imageUrl": "/images/lasanha.png",
+                  "itemType": "JUST_IN_PERSON"
                 }
             headers:
               - name: Content-Type
                 value: application/json
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{ _.token }}"
+              prefix: Bearer
+            scripts:
+              afterResponse: |-
+                if (insomnia.response.code === 201) {
+                  insomnia.environment.set("itemId", insomnia.response.json().id);
+                }
             settings:
               renderRequestBody: true
               encodeUrl: true
@@ -625,23 +588,30 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: http://localhost:8080/api/v1/users
-            name: Get Users
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/item/{{ _.itemId }}"
+            name: Update Item
             meta:
-              id: req_8d48d63679384fbd9778d8bb48778e8b
-              created: 1792113122579
-              modified: 1792113234348
+              id: req_4ee77ab00fa842748fc02f254639e83a
+              created: 1792113122574
+              modified: 1792800000000
               isPrivate: false
-              description: ""
-              sortKey: -1792113121003
-            method: GET
+              description: Somente membros. Atualiza apenas os campos enviados.
+              sortKey: 2000
+            method: PATCH
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "value": 64.90,
+                  "itemType": "DELIVERY_OR_IN_PERSON"
+                }
             headers:
               - name: Content-Type
                 value: application/json
             authentication:
               type: bearer
               disabled: false
-              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              token: "{{ _.token }}"
               prefix: Bearer
             settings:
               renderRequestBody: true
@@ -651,31 +621,21 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: http://localhost:8080/api/v1/users/me
-            name: Update User
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/item/{{ _.itemId }}"
+            name: Delete Item
             meta:
-              id: req_3cb5b7ab83be48d68b4942dafacad156
-              created: 1792113122580
-              modified: 1792113122580
+              id: req_6798076cec3c4279bcdb3893b9780ad9
+              created: 1792113122575
+              modified: 1792800000000
               isPrivate: false
-              description: ""
-              sortKey: -1792113120999
-            method: PATCH
-            body:
-              mimeType: application/json
-              text: |-
-                {
-                	"login" : "matheusEmployee",
-                	"password" : "welcome2"
-                }
-            headers:
-              - name: Content-Type
-                value: application/json
+              description: Somente membros. Desativa o item (soft delete).
+              sortKey: 3000
+            method: DELETE
             authentication:
               type: bearer
               disabled: false
-              token: "{{auth_secret_06d7}}"
-              prefix: ""
+              token: "{{ _.token }}"
+              prefix: Bearer
             settings:
               renderRequestBody: true
               encodeUrl: true
@@ -684,22 +644,29 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: http://localhost:8080/api/v1/users/me
-            name: Update User Password
+      - name: Order
+        meta:
+          id: fld_6c4eec5914384512b6cc89a9258185a6
+          created: 1792113122570
+          modified: 1792800000000
+          sortKey: 4000
+          description: ""
+        children:
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/order"
+            name: Create Order
             meta:
-              id: req_a2686cf0999c433c80ec2966bd6f5fb4
-              created: 1792113122580
-              modified: 1792113122580
+              id: req_83e3edbe6a974b92be734ba4e8e65b92
+              created: 1792113122571
+              modified: 1792800000000
               isPrivate: false
-              description: ""
-              sortKey: -1792113120998
-            method: PATCH
+              description: Qualquer usuário autenticado. Salva o id em orderId.
+              sortKey: 1000
+            method: POST
             body:
               mimeType: application/json
               text: |-
                 {
-                	"login" : "matheusEmployee",
-                	"password" : "welcome2"
+                  "itemIds": [{{ _.itemId }}]
                 }
             headers:
               - name: Content-Type
@@ -707,8 +674,13 @@ collection:
             authentication:
               type: bearer
               disabled: false
-              token: "{{auth_secret_06d7}}"
-              prefix: ""
+              token: "{{ _.token }}"
+              prefix: Bearer
+            scripts:
+              afterResponse: |-
+                if (insomnia.response.code === 201) {
+                  insomnia.environment.set("orderId", insomnia.response.json().id);
+                }
             settings:
               renderRequestBody: true
               encodeUrl: true
@@ -717,19 +689,66 @@ collection:
                 send: true
                 store: true
               rebuildPath: true
-          - url: http://localhost:8080/api/v1/users/name/matheus
-            name: GetUserByName
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/order"
+            name: Get Orders
             meta:
-              id: req_9307adff586d4a0293d7f7d87242a477
-              created: 1792113287583
-              modified: 1792113382960
+              id: req_76028144a6d74781b8e35f98ca1e0f66
+              created: 1792113122571
+              modified: 1792800000000
               isPrivate: false
-              description: ""
-              sortKey: -1792113287583
+              description: Somente membros.
+              sortKey: 2000
             method: GET
             authentication:
               type: bearer
-              token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXRoZXVzRW1wbG95ZWUiLCJpYXQiOjE3OTIxMTMxNzEsImV4cCI6MTc5MjExNjc3MSwiaWQiOjF9.INU5wHVn5SIXaGR9Ei2GxvtkGDKxhGDtD4gVIJELrJs
+              disabled: false
+              token: "{{ _.token }}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/order/{{ _.orderId }}/deliver"
+            name: Deliver Order
+            meta:
+              id: req_6044278707f349f3b22019ab30e3b58e
+              created: 1792113122573
+              modified: 1792800000000
+              isPrivate: false
+              description: Somente membros. Só pedidos IN_PROGRESS (senão retorna 409).
+              sortKey: 3000
+            method: PATCH
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{ _.token }}"
+              prefix: Bearer
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: "{{ _.baseUrl }}/restaurant/{{ _.restaurantId }}/order/{{ _.orderId }}/cancel"
+            name: Cancel Order
+            meta:
+              id: req_2128fe998aae4be4a5e51bd25efb0096
+              created: 1792113122572
+              modified: 1792800000000
+              isPrivate: false
+              description: Somente membros. Só pedidos IN_PROGRESS (senão retorna 409).
+              sortKey: 4000
+            method: PATCH
+            authentication:
+              type: bearer
+              disabled: false
+              token: "{{ _.token }}"
               prefix: Bearer
             settings:
               renderRequestBody: true
@@ -750,5 +769,13 @@ environments:
   meta:
     id: env_2581f6b1650d3ea7e484ee403eaaf2410ba8db50
     created: 1792113122580
-    modified: 1792113122580
+    modified: 1792800000000
     isPrivate: false
+  data:
+    baseUrl: http://localhost:8080/api/v1
+    token: ""
+    userId: "1"
+    employeeId: "2"
+    restaurantId: "1"
+    itemId: "1"
+    orderId: "1"

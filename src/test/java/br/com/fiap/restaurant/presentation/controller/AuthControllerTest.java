@@ -1,8 +1,9 @@
 package br.com.fiap.restaurant.presentation.controller;
 
-import br.com.fiap.restaurant.application.dto.request.LoginRequest;
-import br.com.fiap.restaurant.application.dto.response.LoginResponse;
-import br.com.fiap.restaurant.application.service.AuthService;
+import br.com.fiap.restaurant.application.usecase.auth.AuthToken;
+import br.com.fiap.restaurant.application.usecase.auth.LoginUseCase;
+import br.com.fiap.restaurant.presentation.dto.request.LoginRequest;
+import br.com.fiap.restaurant.presentation.dto.response.LoginResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,15 +16,17 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
-    @Mock AuthService service;
+
+    @Mock LoginUseCase loginUseCase;
     @InjectMocks AuthController controller;
 
-    @Test void returnsLoginResponse() {
-        var request = new LoginRequest("jane", "password123");
-        var response = new LoginResponse("token", "Bearer", 60000);
-        when(service.login(request)).thenReturn(response);
-        var result = controller.login(request);
-        assertEquals(HttpStatus.OK, result.getStatusCode());
-        assertEquals(response, result.getBody());
+    @Test
+    void returnsTokenFromLoginUseCase() {
+        when(loginUseCase.execute("jane", "secret")).thenReturn(new AuthToken("jwt", "Bearer", 3600L));
+
+        var response = controller.login(new LoginRequest("jane", "secret"));
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(new LoginResponse("jwt", "Bearer", 3600L), response.getBody());
     }
 }

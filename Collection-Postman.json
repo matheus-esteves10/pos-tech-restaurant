@@ -1,0 +1,430 @@
+{
+  "info": {
+    "_postman_id": "6a0c5f3e-8b1d-4c7a-9e2f-3d4b5a6c7e81",
+    "name": "post-tech-restaurant",
+    "description": "Collection da Restaurant API (Tech Challenge Fase 2).\n\nOrdem sugerida num banco limpo: User > Create Owner User, Create Employee User, Login; Restaurant > Create Restaurant; Item > Create Item; Order > Create Order.\n\nOs scripts de teste salvam token e IDs nas variáveis da collection, usadas pelas demais requisições.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{token}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api/v1" },
+    { "key": "token", "value": "" },
+    { "key": "userId", "value": "1" },
+    { "key": "employeeId", "value": "2" },
+    { "key": "restaurantId", "value": "1" },
+    { "key": "itemId", "value": "1" },
+    { "key": "orderId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Create Owner User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set(\"userId\", pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Maria Owner\",\n  \"email\": \"maria.owner@email.com\",\n  \"login\": \"maria.owner\",\n  \"phone\": \"11987654321\",\n  \"password\": \"welcome123\",\n  \"address\": {\n    \"street\": \"Av. Paulista\",\n    \"number\": \"1106\",\n    \"neighborhood\": \"Bela Vista\",\n    \"city\": \"São Paulo\",\n    \"state\": \"SP\",\n    \"zipCode\": \"01311000\"\n  }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] },
+            "description": "Cadastro público. Salva o id em userId."
+          }
+        },
+        {
+          "name": "Create Employee User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set(\"employeeId\", pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Joao Employee\",\n  \"email\": \"joao.employee@email.com\",\n  \"login\": \"joao.employee\",\n  \"phone\": \"11987654322\",\n  \"password\": \"welcome123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] },
+            "description": "Segundo usuário, usado como funcionário. Salva o id em employeeId."
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  pm.collectionVariables.set(\"token\", pm.response.json().token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"login\": \"maria.owner\",\n  \"password\": \"welcome123\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "description": "Autentica e salva o JWT em token."
+          }
+        },
+        {
+          "name": "Get Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+          }
+        },
+        {
+          "name": "Get User by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Get Users by Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/name/Maria%20Owner?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "name", "Maria%20Owner"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            },
+            "description": "Busca paginada por nome exato (sem diferenciar maiúsculas)."
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"11911112222\",\n  \"address\": {\n    \"number\": \"2000\",\n    \"complement\": \"Sala 10\"\n  }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] },
+            "description": "Atualiza apenas os campos enviados (email, login, phone, address)."
+          }
+        },
+        {
+          "name": "Update User Password",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"welcome456\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/users/me/password", "host": ["{{baseUrl}}"], "path": ["users", "me", "password"] },
+            "description": "Depois desta chamada, faça login com a nova senha."
+          }
+        },
+        {
+          "name": "Delete User (soft delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] },
+            "description": "Desativa a conta do usuário autenticado; ele não consegue mais fazer login."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restaurant",
+      "item": [
+        {
+          "name": "Create Restaurant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set(\"restaurantId\", pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cantina Bella Vista\",\n  \"cnpj\": \"98765432000145\",\n  \"description\": \"Restaurante especializado em culinária italiana artesanal\",\n  \"phone\": \"11991234567\",\n  \"kitchenType\": \"ITALIAN_FOOD\",\n  \"openingAt\": \"11:00:00\",\n  \"closingAt\": \"23:00:00\",\n  \"addressRequest\": {\n    \"street\": \"Rua das Palmeiras\",\n    \"number\": \"456\",\n    \"neighborhood\": \"Jardins\",\n    \"city\": \"São Paulo\",\n    \"state\": \"SP\",\n    \"zipCode\": \"01414001\",\n    \"complement\": \"Loja 2\"\n  }\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/restaurant", "host": ["{{baseUrl}}"], "path": ["restaurant"] },
+            "description": "O usuário autenticado vira dono. Salva o id em restaurantId."
+          }
+        },
+        {
+          "name": "Get Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/restaurant", "host": ["{{baseUrl}}"], "path": ["restaurant"] }
+          }
+        },
+        {
+          "name": "Get Restaurant by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/restaurant/{{restaurantId}}", "host": ["{{baseUrl}}"], "path": ["restaurant", "{{restaurantId}}"] }
+          }
+        },
+        {
+          "name": "Update Restaurant",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Atualizando somente descrição e horário de fechamento\",\n  \"closingAt\": \"23:30:00\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/restaurant/{{restaurantId}}", "host": ["{{baseUrl}}"], "path": ["restaurant", "{{restaurantId}}"] },
+            "description": "Somente donos. Atualiza apenas os campos enviados."
+          }
+        },
+        {
+          "name": "Add Employee to Restaurant",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurant/{{restaurantId}}/employee/{{employeeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurant", "{{restaurantId}}", "employee", "{{employeeId}}"]
+            },
+            "description": "Somente donos. Vincula o usuário employeeId como funcionário."
+          }
+        },
+        {
+          "name": "Get Restaurant Employees",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurant/{{restaurantId}}/employee",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurant", "{{restaurantId}}", "employee"]
+            },
+            "description": "Somente membros (dono ou funcionário)."
+          }
+        },
+        {
+          "name": "Set Owner in Restaurant",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurant/{{restaurantId}}/owner/{{employeeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurant", "{{restaurantId}}", "owner", "{{employeeId}}"]
+            },
+            "description": "Somente donos. Promove um membro do restaurante a dono."
+          }
+        },
+        {
+          "name": "Remove Employee from Restaurant",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurant/{{restaurantId}}/employee/{{employeeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurant", "{{restaurantId}}", "employee", "{{employeeId}}"]
+            },
+            "description": "Somente donos."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Item",
+      "item": [
+        {
+          "name": "Create Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set(\"itemId\", pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Lasanha à bolonhesa\",\n  \"description\": \"Massa fresca com molho de carne\",\n  \"value\": 59.90,\n  \"imageUrl\": \"/images/lasanha.png\",\n  \"itemType\": \"JUST_IN_PERSON\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/restaurant/{{restaurantId}}/item",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurant", "{{restaurantId}}", "item"]
+            },
+            "description": "Somente membros. Salva o id em itemId.\nitemType: JUST_IN_PERSON (apenas no local), JUST_DELIVERY ou DELIVERY_OR_IN_PERSON (padrão)."
+          }
+        },
+        {
+          "name": "Update Item",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": 64.90,\n  \"itemType\": \"DELIVERY_OR_IN_PERSON\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/restaurant/{{restaurantId}}/item/{{itemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurant", "{{restaurantId}}", "item", "{{itemId}}"]
+            },
+            "description": "Somente membros. Atualiza apenas os campos enviados."
+          }
+        },
+        {
+          "name": "Delete Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurant/{{restaurantId}}/item/{{itemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurant", "{{restaurantId}}", "item", "{{itemId}}"]
+            },
+            "description": "Somente membros. Desativa o item (soft delete)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set(\"orderId\", pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemIds\": [{{itemId}}]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/restaurant/{{restaurantId}}/order",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurant", "{{restaurantId}}", "order"]
+            },
+            "description": "Qualquer usuário autenticado. Salva o id em orderId."
+          }
+        },
+        {
+          "name": "Get Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurant/{{restaurantId}}/order",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurant", "{{restaurantId}}", "order"]
+            },
+            "description": "Somente membros."
+          }
+        },
+        {
+          "name": "Deliver Order",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurant/{{restaurantId}}/order/{{orderId}}/deliver",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurant", "{{restaurantId}}", "order", "{{orderId}}", "deliver"]
+            },
+            "description": "Somente membros. Só pedidos IN_PROGRESS (senão retorna 409)."
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/restaurant/{{restaurantId}}/order/{{orderId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["restaurant", "{{restaurantId}}", "order", "{{orderId}}", "cancel"]
+            },
+            "description": "Somente membros. Só pedidos IN_PROGRESS (senão retorna 409)."
+          }
+        }
+      ]
+    }
+  ]
+}

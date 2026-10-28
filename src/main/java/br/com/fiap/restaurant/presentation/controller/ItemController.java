@@ -1,11 +1,14 @@
 package br.com.fiap.restaurant.presentation.controller;
 
 import br.com.fiap.restaurant.presentation.swagger.ApiErrorExamples;
-import br.com.fiap.restaurant.application.dto.request.CreateItemRequest;
-import br.com.fiap.restaurant.application.dto.request.UpdateItemRequest;
-import br.com.fiap.restaurant.application.dto.response.ItemResponse;
-import br.com.fiap.restaurant.domain.entity.User;
-import br.com.fiap.restaurant.application.service.impl.ItemServiceImpl;
+import br.com.fiap.restaurant.presentation.dto.request.CreateItemRequest;
+import br.com.fiap.restaurant.presentation.dto.request.UpdateItemRequest;
+import br.com.fiap.restaurant.presentation.dto.response.ItemResponse;
+import br.com.fiap.restaurant.domain.model.User;
+import br.com.fiap.restaurant.application.usecase.item.CreateItemUseCase;
+import br.com.fiap.restaurant.application.usecase.item.DeleteItemUseCase;
+import br.com.fiap.restaurant.application.usecase.item.UpdateItemUseCase;
+import br.com.fiap.restaurant.presentation.presenter.ItemPresenter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -35,7 +38,9 @@ import static br.com.fiap.restaurant.presentation.common.ApiPaths.API_V1;
 @Tag(name = "Item")
 public class ItemController {
 
-    private final ItemServiceImpl itemService;
+    private final CreateItemUseCase createItemUseCase;
+    private final UpdateItemUseCase updateItemUseCase;
+    private final DeleteItemUseCase deleteItemUseCase;
 
     @Operation(summary = "Create a new item for a restaurant")
     @ApiResponses({
@@ -55,8 +60,9 @@ public class ItemController {
     @PostMapping
     public ResponseEntity<ItemResponse> createItem(@PathVariable Long restaurantId,
                                                    @Valid @RequestBody CreateItemRequest request,
-                                                   @AuthenticationPrincipal User authenticatedUser) {
-        final ItemResponse itemResponse = itemService.createItem(request, restaurantId, authenticatedUser);
+                                                   @AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        final ItemResponse itemResponse = ItemPresenter.toResponse(
+                createItemUseCase.execute(restaurantId, request.toCommand(), authenticatedUser));
         return ResponseEntity.status(HttpStatus.CREATED).body(itemResponse);
     }
 
@@ -79,8 +85,9 @@ public class ItemController {
     public ResponseEntity<ItemResponse> updateItem(@PathVariable Long restaurantId,
                                                    @PathVariable Long itemId,
                                                    @Valid @RequestBody UpdateItemRequest request,
-                                                   @AuthenticationPrincipal User authenticatedUser) {
-        final ItemResponse itemResponse = itemService.updateItem(request, restaurantId, itemId, authenticatedUser);
+                                                   @AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        final ItemResponse itemResponse = ItemPresenter.toResponse(
+                updateItemUseCase.execute(restaurantId, itemId, request.toCommand(), authenticatedUser));
         return ResponseEntity.ok(itemResponse);
     }
 
@@ -99,8 +106,8 @@ public class ItemController {
     @DeleteMapping("/{itemId}")
     public ResponseEntity<Void> deleteItem(@PathVariable Long restaurantId,
                                            @PathVariable Long itemId,
-                                           @AuthenticationPrincipal User authenticatedUser) {
-        itemService.deleteItem(restaurantId, itemId, authenticatedUser);
+                                           @AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        deleteItemUseCase.execute(restaurantId, itemId, authenticatedUser);
         return ResponseEntity.noContent().build();
     }
 }

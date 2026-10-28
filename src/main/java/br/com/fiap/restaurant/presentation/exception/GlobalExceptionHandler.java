@@ -1,5 +1,7 @@
 package br.com.fiap.restaurant.presentation.exception;
 
+import br.com.fiap.restaurant.domain.exception.BusinessRuleException;
+import br.com.fiap.restaurant.domain.exception.DomainValidationException;
 import br.com.fiap.restaurant.domain.exception.EntityNotFoundException;
 import br.com.fiap.restaurant.domain.exception.ForbiddenOperationException;
 import br.com.fiap.restaurant.domain.exception.InvalidCredentialsException;
@@ -23,6 +25,16 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(DomainValidationException.class)
+    public ResponseEntity<ProblemDetail> handleDomainValidation(DomainValidationException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);
+    }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<ProblemDetail> handleBusinessRule(BusinessRuleException ex, HttpServletRequest request) {
+        return build(HttpStatus.CONFLICT, ex.getMessage(), request, null);
+    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ProblemDetail> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {

@@ -1,12 +1,20 @@
 package br.com.fiap.restaurant.presentation.controller;
 
 import br.com.fiap.restaurant.presentation.swagger.ApiErrorExamples;
-import br.com.fiap.restaurant.application.dto.request.CreateUserRequest;
-import br.com.fiap.restaurant.application.dto.request.UpdateUserPasswordRequest;
-import br.com.fiap.restaurant.application.dto.request.UpdateUserRequest;
-import br.com.fiap.restaurant.application.dto.response.UserResponse;
-import br.com.fiap.restaurant.domain.entity.User;
-import br.com.fiap.restaurant.application.service.impl.UserServiceImpl;
+import br.com.fiap.restaurant.presentation.dto.request.CreateUserRequest;
+import br.com.fiap.restaurant.presentation.dto.request.UpdateUserPasswordRequest;
+import br.com.fiap.restaurant.presentation.dto.request.UpdateUserRequest;
+import br.com.fiap.restaurant.presentation.dto.response.UserResponse;
+import br.com.fiap.restaurant.domain.model.User;
+import br.com.fiap.restaurant.application.usecase.user.CreateUserUseCase;
+import br.com.fiap.restaurant.application.usecase.user.DeleteUserUseCase;
+import br.com.fiap.restaurant.application.usecase.user.FindUsersByNameUseCase;
+import br.com.fiap.restaurant.application.usecase.user.GetUserUseCase;
+import br.com.fiap.restaurant.application.usecase.user.ListUsersUseCase;
+import br.com.fiap.restaurant.application.usecase.user.UpdateUserPasswordUseCase;
+import br.com.fiap.restaurant.application.usecase.user.UpdateUserUseCase;
+import br.com.fiap.restaurant.presentation.dto.response.PageResponse;
+import br.com.fiap.restaurant.presentation.presenter.UserPresenter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -30,7 +38,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -46,7 +53,13 @@ import static br.com.fiap.restaurant.presentation.common.ApiPaths.API_V1;
 @Tag(name = "Users")
 public class UserController {
 
-    private final UserServiceImpl userService;
+    private final ListUsersUseCase listUsersUseCase;
+    private final GetUserUseCase getUserUseCase;
+    private final CreateUserUseCase createUserUseCase;
+    private final UpdateUserUseCase updateUserUseCase;
+    private final DeleteUserUseCase deleteUserUseCase;
+    private final UpdateUserPasswordUseCase updateUserPasswordUseCase;
+    private final FindUsersByNameUseCase findUsersByNameUseCase;
 
     @Operation(summary = "List all users")
     @ApiResponses({
@@ -56,7 +69,7 @@ public class UserController {
     })
     @GetMapping
     public ResponseEntity<List<UserResponse>> getUsers() {
-        final List<UserResponse> users = userService.getAllUsers();
+        final List<UserResponse> users = UserPresenter.toResponse(listUsersUseCase.execute());
         return ResponseEntity.ok(users);
     }
 
@@ -71,7 +84,7 @@ public class UserController {
     })
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUser(@PathVariable Long userId) {
-        final UserResponse userResponse = userService.getUser(userId);
+        final UserResponse userResponse = UserPresenter.toResponse(getUserUseCase.execute(userId));
         return ResponseEntity.ok(userResponse);
     }
 
@@ -87,7 +100,7 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
-        final UserResponse userResponse = userService.createUser(request);
+        final UserResponse userResponse = UserPresenter.toResponse(createUserUseCase.execute(request.toCommand()));
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
 
@@ -105,8 +118,9 @@ public class UserController {
     })
     @PatchMapping("/me")
     public ResponseEntity<UserResponse> updateUser(@Valid @RequestBody UpdateUserRequest request,
-                                    @AuthenticationPrincipal User authenticatedUser) {
-        final UserResponse userResponse = userService.updateUser(request, authenticatedUser);
+                                    @AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        final UserResponse userResponse = UserPresenter.toResponse(
+                updateUserUseCase.execute(authenticatedUser, request.toCommand()));
         return ResponseEntity.ok().body(userResponse);
     }
 
@@ -118,8 +132,8 @@ public class UserController {
     })
     @DeleteMapping("/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal User authenticatedUser) {
-        userService.deleteUser(authenticatedUser);
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        deleteUserUseCase.execute(authenticatedUser);
         return ResponseEntity.noContent().build();
     }
 
@@ -134,8 +148,9 @@ public class UserController {
     })
     @PatchMapping("/me/password")
     public ResponseEntity<UserResponse> updatePassword(@Valid @RequestBody UpdateUserPasswordRequest request,
-                                                       @AuthenticationPrincipal User authenticatedUser) {
-        final UserResponse userResponse = userService.updatePassword(request, authenticatedUser);
+                                                       @AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        final UserResponse userResponse = UserPresenter.toResponse(
+                updateUserPasswordUseCase.execute(authenticatedUser, request.password()));
         return ResponseEntity.ok().body(userResponse);
     }
 
@@ -146,10 +161,11 @@ public class UserController {
                             examples = @ExampleObject(name = "User not found", value = ApiErrorExamples.ENTITY_NOT_FOUND)))
     })
     @GetMapping("/name/{name}")
-    public ResponseEntity<Page<UserResponse>> findUserByName(@PathVariable String name,
+    public ResponseEntity<PageResponse<UserResponse>> findUserByName(@PathVariable String name,
             @PageableDefault(page = DEFAULT_PAGEABLE_VALUE, size = DEFAULT_PAGEABLE_SIZE,
                     sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
-        final Page<UserResponse> userResponse = userService.findByName(name, pageable);
+        final PageResponse<UserResponse> userResponse = UserPresenter.toResponse(
+                findUsersByNameUseCase.execute(name, pageable.getPageNumber(), pageable.getPageSize()));
         return ResponseEntity.ok().body(userResponse);
     }
 }

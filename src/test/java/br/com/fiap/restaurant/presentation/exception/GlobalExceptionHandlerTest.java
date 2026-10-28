@@ -1,5 +1,7 @@
 package br.com.fiap.restaurant.presentation.exception;
 
+import br.com.fiap.restaurant.domain.exception.BusinessRuleException;
+import br.com.fiap.restaurant.domain.exception.DomainValidationException;
 import br.com.fiap.restaurant.domain.exception.EntityNotFoundException;
 import br.com.fiap.restaurant.domain.exception.ForbiddenOperationException;
 import br.com.fiap.restaurant.domain.exception.InvalidCredentialsException;
@@ -27,6 +29,15 @@ class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.CONFLICT, handler.handleInvalidOrderStatus(new InvalidOrderStatusException("done"), request).getStatusCode());
         assertEquals(HttpStatus.FORBIDDEN, handler.handleForbiddenOperation(new ForbiddenOperationException("jane"), request).getStatusCode());
         assertEquals(HttpStatus.FORBIDDEN, handler.handleAccessDenied(new AccessDeniedException("private"), request).getStatusCode());
+    }
+
+    @Test void mapsDomainValidationAndBusinessRuleErrors() {
+        var validation = handler.handleDomainValidation(new DomainValidationException("Name cannot be blank"), request);
+        assertEquals(HttpStatus.BAD_REQUEST, validation.getStatusCode());
+        assertEquals("Name cannot be blank", validation.getBody().getDetail());
+        var rule = handler.handleBusinessRule(new BusinessRuleException("already associated"), request);
+        assertEquals(HttpStatus.CONFLICT, rule.getStatusCode());
+        assertEquals("already associated", rule.getBody().getDetail());
     }
 
     @Test void mapsInvalidCredentialsAndDatabaseConflicts() {

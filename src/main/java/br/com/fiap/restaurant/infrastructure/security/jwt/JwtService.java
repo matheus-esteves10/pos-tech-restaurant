@@ -1,6 +1,7 @@
 package br.com.fiap.restaurant.infrastructure.security.jwt;
 
-import br.com.fiap.restaurant.domain.entity.User;
+import br.com.fiap.restaurant.application.gateway.TokenGateway;
+import br.com.fiap.restaurant.domain.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -14,30 +15,25 @@ import java.time.Instant;
 import java.util.Date;
 
 @Service
-public class JwtService {
+public class JwtService implements TokenGateway {
 
     private final String secret;
     private final long expirationMs;
 
     public JwtService(@Value("${security.jwt.secret}") String secret,
-                       @Value("${security.jwt.expiration-ms}") long expirationMs) {
+                      @Value("${security.jwt.expiration-ms}") long expirationMs) {
         this.secret = secret;
         this.expirationMs = expirationMs;
     }
 
-    public String generateToken(UserDetails userDetails) {
+    @Override
+    public String generateToken(User user) {
         Instant now = Instant.now();
-        var tokenBuilder = Jwts.builder()
-                .subject(userDetails.getUsername())
+        return Jwts.builder()
+                .subject(user.getLogin())
+                .claim("id", user.getId())
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plusMillis(expirationMs)));
-
-        if (userDetails instanceof User user) {
-            tokenBuilder
-                    .claim("id", user.getId());
-        }
-
-        return tokenBuilder
+                .expiration(Date.from(now.plusMillis(expirationMs)))
                 .signWith(signingKey())
                 .compact();
     }
@@ -51,6 +47,7 @@ public class JwtService {
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
+    @Override
     public long getExpirationMs() {
         return expirationMs;
     }

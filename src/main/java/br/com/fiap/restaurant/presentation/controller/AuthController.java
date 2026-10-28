@@ -1,9 +1,10 @@
 package br.com.fiap.restaurant.presentation.controller;
 
 import br.com.fiap.restaurant.presentation.swagger.ApiErrorExamples;
-import br.com.fiap.restaurant.application.dto.request.LoginRequest;
-import br.com.fiap.restaurant.application.dto.response.LoginResponse;
-import br.com.fiap.restaurant.application.service.AuthService;
+import br.com.fiap.restaurant.presentation.dto.request.LoginRequest;
+import br.com.fiap.restaurant.presentation.dto.response.LoginResponse;
+import br.com.fiap.restaurant.application.usecase.auth.LoginUseCase;
+import br.com.fiap.restaurant.presentation.presenter.AuthPresenter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -28,7 +29,7 @@ import static br.com.fiap.restaurant.presentation.common.ApiPaths.API_V1;
 @Tag(name = "Auth")
 public class AuthController {
 
-    private final AuthService authService;
+    private final LoginUseCase loginUseCase;
 
     @Operation(summary = "Authenticate a user and obtain a bearer token")
     @ApiResponses({
@@ -41,6 +42,6 @@ public class AuthController {
     })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok().body(authService.login(request));
+        return ResponseEntity.ok(AuthPresenter.toResponse(loginUseCase.execute(request.login(), request.password())));
     }
 }

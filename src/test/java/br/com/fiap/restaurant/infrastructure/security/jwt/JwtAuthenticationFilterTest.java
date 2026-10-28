@@ -1,6 +1,7 @@
 package br.com.fiap.restaurant.infrastructure.security.jwt;
 
-import br.com.fiap.restaurant.domain.entity.User;
+import br.com.fiap.restaurant.infrastructure.security.AuthenticatedUser;
+import br.com.fiap.restaurant.support.Fixtures;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -34,12 +35,12 @@ class JwtAuthenticationFilterTest {
     @Test void authenticatesValidBearerToken() throws Exception {
         var request = new MockHttpServletRequest();
         request.addHeader("Authorization", "Bearer token");
-        User user = User.builder().login("jane").password("hash").build();
+        AuthenticatedUser principal = new AuthenticatedUser(Fixtures.user(1L, "jane"));
         when(jwtService.extractUsername("token")).thenReturn("jane");
-        when(userDetailsService.loadUserByUsername("jane")).thenReturn(user);
-        when(jwtService.isTokenValid("token", user)).thenReturn(true);
+        when(userDetailsService.loadUserByUsername("jane")).thenReturn(principal);
+        when(jwtService.isTokenValid("token", principal)).thenReturn(true);
         filter.doFilterInternal(request, new MockHttpServletResponse(), chain);
-        assertEquals("jane", SecurityContextHolder.getContext().getAuthentication().getName());
+        assertSame(principal, SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         verify(chain).doFilter(any(), any());
     }
 

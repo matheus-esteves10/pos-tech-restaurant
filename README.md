@@ -1,142 +1,93 @@
 # Restaurant API - Pós-Tech FIAP
 
-Uma API RESTful para gerenciamento de usuários, autenticação e operações de restaurante, desenvolvida com Spring Boot 4.1.0 e Java 25.
+API REST para gestão compartilhada de restaurantes: usuários, autenticação, restaurantes, funcionários, cardápio e pedidos. Desenvolvida com Spring Boot 4.1 e Java 25, organizada em Clean Architecture.
 
 ## Sumário
 
 - [Visão Geral](#visão-geral)
 - [Tecnologias](#tecnologias)
-- [Pré-requisitos](#pré-requisitos)
-- [Instalação](#instalação)
-- [Como Executar](#como-executar)
+- [Arquitetura](#arquitetura)
 - [Estrutura do Projeto](#estrutura-do-projeto)
+- [Pré-requisitos](#pré-requisitos)
+- [Configuração](#configuração)
+- [Como Executar](#como-executar)
 - [Endpoints da API](#endpoints-da-api)
-- [Documentação](#documentação)
-- [Contribuindo](#contribuindo)
+- [Tratamento de Erros](#tratamento-de-erros)
+- [Testes e Cobertura](#testes-e-cobertura)
+- [Documentação e Collection](#documentação-e-collection)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Visão Geral
 
-Este projeto é uma API REST robusta para gerenciamento de um restaurante, com as seguintes funcionalidades:
-
-- Autenticação e Autorização com JWT e Spring Security
-- Gerenciamento de Usuários com CRUD e validações
-- Segurança com criptografia de senhas e tokens JWT
-- Tratamento global de erros com Exception Handler
-- Validação de dados com Jakarta Validation
+- Cadastro e autenticação de usuários com JWT (senhas com BCrypt)
+- CRUD de restaurantes com nome, CNPJ, endereço, tipo de cozinha e horário de funcionamento
+- Quem cria o restaurante passa a ser o **dono**; o dono pode adicionar funcionários e promover outros donos
+- Cadastro dos itens do cardápio (nome, descrição, preço, disponibilidade apenas no local e caminho da foto)
+- Pedidos com fluxo de status (`IN_PROGRESS` → `DELIVERED` ou `CANCELED`)
+- Erros padronizados no formato RFC 7807 (`ProblemDetail`)
 - Documentação automática com OpenAPI/Swagger
 
 ---
 
 ## Tecnologias
 
-Backend
-- Framework: Spring Boot 4.1.0
-- Linguagem: Java 25
-- Build: Maven
-- Banco de Dados: PostgreSQL
-- ORM: Spring Data JPA (Hibernate)
-
-Segurança
-- Spring Security - Autenticação e autorização
-- JWT - Json Web Tokens
-- Lombok - Redução de boilerplate
-
-Documentação
-- SpringDoc OpenAPI - Documentação automática (Swagger/OpenAPI)
+| Categoria | Tecnologia |
+|---|---|
+| Linguagem | Java 25 |
+| Framework | Spring Boot 4.1 (Web MVC, Data JPA, Validation, Security) |
+| Banco de dados | PostgreSQL 17 |
+| Autenticação | JWT (jjwt 0.12) + BCrypt |
+| Documentação | SpringDoc OpenAPI 3 (Swagger UI) |
+| Testes | JUnit 5, Mockito, Testcontainers, JaCoCo |
+| Build / Infra | Maven Wrapper, Docker, Docker Compose |
 
 ---
 
-## Pré-requisitos
+## Arquitetura
 
-- Java 25 ou superior - Download em https://www.oracle.com/java/technologies/
-- Maven 3.8 ou superior - Download em https://maven.apache.org/download.cgi
-- PostgreSQL 12 ou superior - Download em https://www.postgresql.org/download/
-- Docker (opcional) - Para utilizar Docker Compose
+O projeto segue Clean Architecture: as dependências apontam sempre para dentro, e as regras de negócio não conhecem frameworks.
 
----
-
-## Instalação
-
-1. Clonar o repositório
-```bash
-git clone <repository-url>
-cd restaurant
+```
+┌──────────────────────────────────────────────────────────────┐
+│ presentation    Controllers · DTOs · Presenters · Exceptions │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ infrastructure  JPA · Adapters · Security · Config     │  │
+│  │  ┌──────────────────────────────────────────────────┐  │  │
+│  │  │ application   Use cases · Commands · Gateways    │  │  │
+│  │  │  ┌────────────────────────────────────────────┐  │  │  │
+│  │  │  │ domain   Modelos · Regras · Ports          │  │  │  │
+│  │  │  └────────────────────────────────────────────┘  │  │  │
+│  │  └──────────────────────────────────────────────────┘  │  │
+│  └────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
 ```
 
-2. Instalar dependências
-```bash
-./mvnw clean install
+| Camada | Responsabilidade | Depende de |
+|---|---|---|
+| **domain** | Modelos em Java puro (`User`, `Restaurant`, `Item`, `Order`...), regras de negócio e interfaces de repositório (ports). Sem Spring, JPA, Jakarta ou Lombok. | nada |
+| **application** | Um use case por operação (`CreateRestaurantUseCase`, `CancelOrderUseCase`...), commands de entrada e gateways (`PasswordEncoderGateway`, `TokenGateway`). Também sem frameworks. | domain |
+| **infrastructure** | Entidades JPA, repositórios Spring Data, adapters que implementam os ports do domínio, segurança (JWT/BCrypt) e configuração. | application, domain |
+| **presentation** | Controllers REST, DTOs de request/response, presenters (domínio → resposta HTTP) e tratamento global de erros. | application, domain |
+
+**Decisões principais**
+
+- **Domínio rico**: as regras ficam nos próprios modelos, por exemplo `order.cancel()` (valida o status), `restaurant.ensureOwner(user)` (autorização) e `item.disable()` (soft delete).
+- **Entidades JPA separadas do domínio**: `UserEntity`, `RestaurantEntity` etc. ficam em `infrastructure/persistence/entity` e são convertidas pelo `PersistenceMapper`.
+- **Use cases sem Spring**: são classes Java comuns marcadas com a anotação própria `@UseCase`; o `UseCaseConfig` (infraestrutura) as registra como beans.
+- **Presenters**: os controllers não montam respostas; delegam ao presenter de cada recurso.
+- **Restaurante como agregado**: os vínculos dono/funcionário fazem parte do `Restaurant` e são persistidos pelo `RestaurantRepositoryAdapter`.
+
+**Fluxo de uma requisição**
+
 ```
-
-No Windows:
-```cmd
-mvnw.cmd clean install
-```
-
-3. Configurar Banco de Dados
-
-Opção A: PostgreSQL local
-```sql
-CREATE DATABASE restaurant_db;
-CREATE USER restaurant_user WITH PASSWORD 'password';
-ALTER ROLE restaurant_user SET client_encoding TO 'utf8';
-GRANT ALL PRIVILEGES ON DATABASE restaurant_db TO restaurant_user;
-```
-
-Opção B: Docker Compose
-```bash
-docker-compose up -d
-```
-
-O arquivo compose.yaml está configurado para subir PostgreSQL automaticamente.
-
-4. Configurar variáveis de ambiente
-
-Crie um arquivo .env na raiz do projeto:
-
-```env
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/restaurant_db
-SPRING_DATASOURCE_USERNAME=restaurant_user
-SPRING_DATASOURCE_PASSWORD=password
-SPRING_JPA_HIBERNATE_DDL_AUTO=update
-JWT_SECRET=your-secret-key-here-min-256-bits
-JWT_EXPIRATION=3600000
-```
-
-Ou configure em src/main/resources/application.yml:
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/restaurant_db
-    username: restaurant_user
-    password: password
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
-
-jwt:
-  secret: your-secret-key-here
-  expiration: 3600000
-```
-
----
-
-## Como Executar
-
-Executar a aplicação
-```bash
-./mvnw spring-boot:run
-```
-
-A aplicação estará disponível em: http://localhost:8080
-
-Acessar Swagger/OpenAPI
-```
-http://localhost:8080/swagger-ui.html
+HTTP → Controller → Request.toCommand() → UseCase.execute()
+                                              ↓
+                       Domain model (regras)  ←→  Repository port
+                                                       ↓
+                                       Adapter → Spring Data JPA → PostgreSQL
+HTTP ← Response DTO ← Presenter ← domain model
 ```
 
 ---
@@ -144,225 +95,298 @@ http://localhost:8080/swagger-ui.html
 ## Estrutura do Projeto
 
 ```
-restaurant/
-├── src/
-│   ├── main/
-│   │   ├── java/br/com/fiap/restaurant/
-│   │   │   ├── domain/                  # Regras de negócio corporativas (núcleo)
-│   │   │   │   ├── entity/              # Entidades (User, Restaurant, Item, Order...)
-│   │   │   │   ├── valueobject/         # Objetos de valor (Address, Audit, RestaurantUserId)
-│   │   │   │   ├── enums/               # Enums do domínio
-│   │   │   │   ├── exception/           # Exceções de negócio
-│   │   │   │   └── repository/          # Contratos de persistência
-│   │   │   ├── application/             # Casos de uso (regras da aplicação)
-│   │   │   │   ├── service/             # Interfaces e implementações dos casos de uso
-│   │   │   │   ├── dto/                 # Modelos de entrada/saída (Request/Response)
-│   │   │   │   └── mapper/              # Mapeadores DTO ↔ Entidade
-│   │   │   ├── infrastructure/          # Frameworks e detalhes técnicos
-│   │   │   │   ├── config/              # Configurações (JPA, OpenAPI)
-│   │   │   │   ├── persistence/audit/   # Auditoria JPA
-│   │   │   │   └── security/            # Spring Security, JWT e autenticação
-│   │   │   ├── presentation/            # Adaptadores de entrada (HTTP)
-│   │   │   │   ├── controller/          # Controllers REST
-│   │   │   │   ├── exception/           # Exception handler global
-│   │   │   │   ├── swagger/             # Exemplos de erro da documentação
-│   │   │   │   └── common/              # Constantes da API (paths, paginação)
-│   │   │   └── RestaurantApplication.java  # Classe principal
-│   │   └── resources/
-│   │       ├── application.yaml     # Configurações
-│   │       └── application-local.yml # Configurações do perfil local
-│   └── test/
-│       └── java/br/com/fiap/restaurant/
-├── compose.yaml                     # Docker Compose
-├── pom.xml                          # Dependências Maven
-└── README.md                        # Este arquivo
+src/main/java/br/com/fiap/restaurant/
+├── domain/
+│   ├── model/            # User, Restaurant, RestaurantMember, Item, Order, Address, PageResult
+│   ├── enums/            # UserType, KitchenType, ItemType, OrderStatus
+│   ├── exception/        # Exceções de negócio
+│   └── repository/       # Ports de persistência (interfaces)
+├── application/
+│   ├── gateway/          # Ports de serviços externos (senha, token)
+│   └── usecase/          # auth/, user/, restaurant/, item/, order/ + @UseCase
+├── infrastructure/
+│   ├── config/           # JPA, OpenAPI, registro dos use cases
+│   ├── persistence/
+│   │   ├── entity/       # Entidades JPA
+│   │   ├── jpa/          # Repositórios Spring Data
+│   │   ├── adapter/      # Implementações dos ports do domínio
+│   │   ├── mapper/       # Conversão entidade JPA ↔ domínio
+│   │   └── audit/        # Auditoria (createdBy, updatedAt...)
+│   └── security/         # Spring Security, JWT, BCrypt
+├── presentation/
+│   ├── controller/       # Controllers REST
+│   ├── dto/              # request/ e response/
+│   ├── presenter/        # Domínio → DTO de resposta
+│   ├── exception/        # Exception handler global (ProblemDetail)
+│   ├── swagger/          # Exemplos de erro da documentação
+│   └── common/           # Paths e constantes da API
+└── RestaurantApplication.java
+
+src/test/java/...         # Testes espelhando a estrutura acima
+Collection-Insomnia.yaml  # Collection para testar a API
+compose.yaml              # PostgreSQL + aplicação
+Dockerfile                # Imagem da aplicação
+```
+
+---
+
+## Pré-requisitos
+
+- **Java 25** (o build não compila com versões anteriores)
+- **Docker** e Docker Compose
+- Maven não é necessário: use o wrapper incluído (`./mvnw` ou `mvnw.cmd`)
+
+---
+
+## Configuração
+
+O arquivo `.env` não é versionado. Crie-o na raiz do projeto:
+
+```env
+POSTGRES_DB=restaurant_db
+POSTGRES_USER=restaurant_user
+POSTGRES_PASSWORD=password
+```
+
+Variáveis lidas pela aplicação:
+
+| Variável | Descrição | Padrão |
+|---|---|---|
+| `SPRING_DATASOURCE_URL` | URL JDBC do PostgreSQL | definida pelo `compose.yaml` |
+| `SPRING_DATASOURCE_USERNAME` | Usuário do banco | definida pelo `compose.yaml` |
+| `SPRING_DATASOURCE_PASSWORD` | Senha do banco | definida pelo `compose.yaml` |
+| `SPRING_JPA_HIBERNATE_DDL_AUTO` | Estratégia de schema do Hibernate | `update` |
+| `SPRING_JPA_SHOW_SQL` | Exibe o SQL gerado | `true` |
+| `JWT_SECRET` | Chave HMAC (Base64, mínimo 256 bits) | chave de desenvolvimento |
+| `JWT_EXPIRATION_MS` | Validade do token em ms | `3600000` (1h) |
+
+---
+
+## Como Executar
+
+### Opção A: tudo com Docker Compose
+
+O `Dockerfile` copia o jar de `target/`, então gere-o antes de subir os containers:
+
+```bash
+./mvnw clean package -DskipTests
+```
+
+```bash
+docker compose up -d --build
+```
+
+- API: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- Debug remoto (JDWP): porta `5005`
+
+### Opção B: aplicação local + banco no Docker
+
+```bash
+docker compose up -d postgres
+```
+
+Exporte as variáveis de conexão (ajuste conforme o seu `.env`) e rode a aplicação:
+
+```bash
+export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/restaurant_db SPRING_DATASOURCE_USERNAME=restaurant_user SPRING_DATASOURCE_PASSWORD=password SPRING_DOCKER_COMPOSE_ENABLED=false && ./mvnw spring-boot:run
 ```
 
 ---
 
 ## Endpoints da API
 
-Autenticação
+Base: `/api/v1`. Com exceção do cadastro de usuário e do login, todas as rotas exigem o header `Authorization: Bearer <token>`.
 
-Login
+**Regras de autorização**
+- **Dono**: quem criou o restaurante ou foi promovido. Pode editar o restaurante e gerenciar funcionários.
+- **Membro** (dono ou funcionário): pode gerenciar itens e pedidos e ver a equipe.
+- **Qualquer usuário autenticado**: pode consultar restaurantes e fazer pedidos.
+
+### Autenticação
+
+| Método | Rota | Descrição | Acesso |
+|---|---|---|---|
+| POST | `/auth/login` | Autentica e retorna o token JWT | público |
+
+```json
+// POST /api/v1/auth/login
+{ "login": "joao_silva", "password": "senha1234" }
+
+// 200 OK
+{ "token": "eyJhbGciOiJIUzI1NiJ9...", "tokenType": "Bearer", "expiresInMs": 3600000 }
 ```
-POST /api/v1/auth/login
-Content-Type: application/json
 
-{
-  "login": "usuario@email.com",
-  "password": "senha123"
-}
+### Usuários
 
-Response: 200 OK
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": { ... }
-}
-```
+| Método | Rota | Descrição | Acesso |
+|---|---|---|---|
+| POST | `/users` | Cadastra um usuário | público |
+| GET | `/users` | Lista usuários | autenticado |
+| GET | `/users/{userId}` | Busca usuário por id | autenticado |
+| GET | `/users/name/{name}?page=0&size=10` | Busca paginada por nome (exato, sem diferenciar maiúsculas) | autenticado |
+| PATCH | `/users/me` | Atualiza e-mail, login, telefone e/ou endereço do próprio usuário | autenticado |
+| PATCH | `/users/me/password` | Altera a própria senha | autenticado |
+| DELETE | `/users/me` | Desativa a própria conta (soft delete) | autenticado |
 
-Registrar Usuário
-```
-POST /api/v1/auth/register
-Content-Type: application/json
-
+```json
+// POST /api/v1/users
 {
   "name": "João Silva",
   "email": "joao@email.com",
   "login": "joao_silva",
-  "password": "senha123",
-  "address": {
-    "street": "Rua A",
-    "number": "123",
-    "city": "São Paulo",
-    "state": "SP",
-    "zipCode": "01234-567"
-  }
+  "password": "senha1234",
+  "phone": "11999998888",
+  "address": { "street": "Rua A", "number": "123", "city": "São Paulo", "state": "SP", "zipCode": "01234-567" }
 }
-
-Response: 201 Created
 ```
 
-Usuários
+A busca por nome retorna `{ "content": [...], "page": 0, "size": 10, "totalElements": 1, "totalPages": 1 }`.
 
-Listar Usuários
-```
-GET /api/v1/users
-Headers: Authorization: Bearer <token>
+### Restaurantes
 
-Response: 200 OK
+| Método | Rota | Descrição | Acesso |
+|---|---|---|---|
+| GET | `/restaurant` | Lista restaurantes com seus itens | autenticado |
+| GET | `/restaurant/{restaurantId}` | Busca restaurante por id | autenticado |
+| POST | `/restaurant` | Cria restaurante (o usuário autenticado vira dono) | autenticado |
+| PATCH | `/restaurant/{restaurantId}` | Atualiza dados do restaurante | dono |
+| GET | `/restaurant/{restaurantId}/employee` | Lista dono(s) e funcionários | membro |
+| POST | `/restaurant/{restaurantId}/employee/{userId}` | Adiciona funcionário | dono |
+| DELETE | `/restaurant/{restaurantId}/employee/{userId}` | Remove funcionário | dono |
+| PATCH | `/restaurant/{restaurantId}/owner/{userId}` | Promove um membro a dono | dono |
+
+```json
+// POST /api/v1/restaurant
 {
-  "content": [ ... ],
-  "totalElements": 10,
-  "totalPages": 1
+  "name": "Cantina da Nona",
+  "cnpj": "12345678000199",
+  "description": "Massas artesanais",
+  "phone": "11988887777",
+  "kitchenType": "ITALIAN_FOOD",
+  "openingAt": "11:00:00",
+  "closingAt": "23:00:00",
+  "addressRequest": { "street": "Rua B", "number": "45", "city": "São Paulo", "state": "SP", "zipCode": "01000-000" }
 }
 ```
 
-Obter Usuário por ID
-```
-GET /api/v1/users/{id}
-Headers: Authorization: Bearer <token>
+Tipos de cozinha: `ITALIAN_FOOD`, `BRAZILIAN_FOOD`, `JAPANESE_FOOD`, `MEXICAN_FOOD`, `CHINESE_FOOD`, `ARABIC_FOOD`, `FAST_FOOD`, `VEGAN_FOOD`, `OTHER`.
 
-Response: 200 OK
+### Itens do cardápio
+
+| Método | Rota | Descrição | Acesso |
+|---|---|---|---|
+| POST | `/restaurant/{restaurantId}/item` | Cria item | membro |
+| PATCH | `/restaurant/{restaurantId}/item/{itemId}` | Atualiza item | membro |
+| DELETE | `/restaurant/{restaurantId}/item/{itemId}` | Desativa item (soft delete) | membro |
+
+```json
+// POST /api/v1/restaurant/1/item
 {
-  "id": 1,
-  "name": "João Silva",
-  "email": "joao@email.com",
-  "login": "joao_silva",
-  ...
+  "name": "Lasanha",
+  "description": "Lasanha à bolonhesa",
+  "value": 59.90,
+  "imageUrl": "/images/lasanha.png",
+  "itemType": "JUST_IN_PERSON"
 }
 ```
 
-Atualizar Usuário
-```
-PUT /api/v1/users/{id}
-Headers: Authorization: Bearer <token>
-Content-Type: application/json
+`itemType` define a disponibilidade: `JUST_IN_PERSON` (apenas no restaurante), `JUST_DELIVERY` ou `DELIVERY_OR_IN_PERSON` (padrão). `imageUrl` guarda apenas o caminho da foto.
 
-{
-  "name": "João Santos",
-  "email": "joao.santos@email.com",
-  ...
-}
+### Pedidos
 
-Response: 200 OK
+| Método | Rota | Descrição | Acesso |
+|---|---|---|---|
+| POST | `/restaurant/{restaurantId}/order` | Cria pedido com itens do restaurante | autenticado |
+| GET | `/restaurant/{restaurantId}/order` | Lista pedidos do restaurante | membro |
+| PATCH | `/restaurant/{restaurantId}/order/{orderId}/deliver` | Marca como entregue | membro |
+| PATCH | `/restaurant/{restaurantId}/order/{orderId}/cancel` | Cancela | membro |
+
+```json
+// POST /api/v1/restaurant/1/order
+{ "itemIds": [1, 2] }
 ```
 
-Deletar Usuário
-```
-DELETE /api/v1/users/{id}
-Headers: Authorization: Bearer <token>
-
-Response: 204 No Content
-```
+Só pedidos `IN_PROGRESS` podem ser entregues ou cancelados.
 
 ---
 
-## Documentação
+## Tratamento de Erros
 
-Swagger/OpenAPI
-Após iniciar a aplicação, acesse:
-```
-http://localhost:8080/swagger-ui.html
+Todas as respostas de erro seguem o formato `ProblemDetail` (RFC 7807):
+
+```json
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "Validation failed",
+  "instance": "/api/v1/users",
+  "validationErrors": { "email": "Email must be valid" }
+}
 ```
 
-Postman
-Uma coleção do Postman está disponível em:
-```
-insomnia-export-[hash].json
-```
-
-Importe no Postman/Insomnia para testar todos os endpoints.
+| Status | Quando ocorre |
+|---|---|
+| 400 | Payload inválido (Bean Validation) ou regra de domínio violada (ex.: preço ≤ 0) |
+| 401 | Token ausente/inválido ou login/senha incorretos |
+| 403 | Usuário não é dono/membro do restaurante |
+| 404 | Recurso não encontrado |
+| 409 | Dado único duplicado (e-mail, login, CNPJ...), funcionário já vinculado ou pedido fora de `IN_PROGRESS` |
 
 ---
 
-## Segurança
+## Testes e Cobertura
 
-Autenticação
-- Senhas são criptografadas com BCrypt
-- Tokens JWT com expiração configurável
-- Validação de tokens em cada requisição
+```bash
+./mvnw clean verify
+```
 
-Autorização
-- Role-based access control (RBAC)
-- Usuários só podem acessar/modificar seus próprios dados
-- Endpoints protegidos requerem token válido
+- **Testes unitários**: domínio, use cases (repositórios mockados), adapters de persistência, segurança, presenters e controllers.
+- **Testes de integração**: sobem a aplicação completa com PostgreSQL real via Testcontainers. Precisam do Docker em execução; sem ele, são ignorados.
+- **Cobertura**: o JaCoCo exige no mínimo **80% de linhas** e falha o build abaixo disso. Relatório em `target/site/jacoco/index.html`.
 
-Validação
-- Validação de entrada com Jakarta Validation
-- Email único por usuário
-- Login único por usuário
-- Validação de formato de dados
+---
+
+## Documentação e Collection
+
+- **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **OpenAPI (JSON)**: http://localhost:8080/v3/api-docs
+- **Collections**, na raiz, com as mesmas requisições:
+  - `Collection-Postman.json`: Postman (*Import → File*). Usa variáveis da própria collection, então não é preciso selecionar environment.
+  - `Collection-Insomnia.yaml`: Insomnia (*Import → From File*). Usa o *Base Environment*.
+
+As variáveis são `baseUrl`, `token`, `userId`, `employeeId`, `restaurantId`, `itemId` e `orderId`. Scripts executados após a resposta as preenchem automaticamente, e nenhum token fica salvo nos arquivos. Num banco limpo, execute nesta ordem:
+
+1. **User**: `Create Owner User` → `Create Employee User` → `Login` (salva o `token`)
+2. **Restaurant**: `Create Restaurant` (salva o `restaurantId`) → `Add Employee to Restaurant`
+3. **Item**: `Create Item` (salva o `itemId`)
+4. **Order**: `Create Order` (salva o `orderId`) → `Deliver Order` ou `Cancel Order`
+
+O token expira em 1 hora; depois disso, execute `Login` novamente.
 
 ---
 
 ## Troubleshooting
 
-Erro: "Connection refused" (PostgreSQL)
+**`release version 25 not supported`**: o Maven está usando um JDK antigo. Aponte o `JAVA_HOME` para um JDK 25.
+
+**`Cannot load driver class: org.h2.Driver` nos testes**: há arquivos antigos em `target/`. Rode `./mvnw clean verify` em vez de apenas `verify`.
+
+**`COPY failed: target/restaurant-0.0.1-SNAPSHOT.jar not found` no Docker**: gere o jar antes (`./mvnw clean package -DskipTests`).
+
+**`Unable to establish loopback connection` ao iniciar no Windows**: o JDK não conseguiu criar o socket interno na pasta temporária. Informe outra pasta:
+
 ```bash
-# Verificar se PostgreSQL está rodando
-docker-compose up -d
+java -Djdk.net.unixdomain.tmpdir=C:/temp -jar target/restaurant-0.0.1-SNAPSHOT.jar
 ```
 
-Erro: "Maven not found"
-Use o Maven Wrapper incluído:
-```bash
-./mvnw --version
-```
-
-Erro: "Cannot compile"
-Limpe e recompile:
-```bash
-./mvnw clean compile
-```
-
----
-
----
-
-## Desenvolvimento
-
-Code Style
-- Seguir convenções Java
-- Usar Lombok para reduzir boilerplate
-
-Commits
-```bash
-git commit -m "feat: adicionar novo endpoint de usuário"
-```
-
-Pull Requests
-1. Create uma branch: git checkout -b feature/minha-feature
-2. Commit suas mudanças: git commit -m 'feat: descrição'
-3. Push para a branch: git push origin feature/minha-feature
-4. Abra um Pull Request
+**`Connection refused` (PostgreSQL)**: confira se o container está de pé com `docker compose ps`.
 
 ---
 
 ## Sobre
 
-Projeto desenvolvido como parte do programa de Pós-Graduação em Engenharia de Software da FIAP (Faculdade de Informática e Administração Paulista).
+Projeto desenvolvido para o Tech Challenge (Fase 2) da Pós-Tech FIAP em Arquitetura e Desenvolvimento Java.
 
 Versão: 0.0.1-SNAPSHOT
-Última atualização: 2026

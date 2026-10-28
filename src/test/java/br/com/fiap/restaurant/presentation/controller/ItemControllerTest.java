@@ -1,10 +1,14 @@
 package br.com.fiap.restaurant.presentation.controller;
 
-import br.com.fiap.restaurant.application.dto.request.CreateItemRequest;
-import br.com.fiap.restaurant.application.dto.request.UpdateItemRequest;
-import br.com.fiap.restaurant.application.dto.response.ItemResponse;
-import br.com.fiap.restaurant.application.service.impl.ItemServiceImpl;
-import br.com.fiap.restaurant.domain.entity.User;
+import br.com.fiap.restaurant.application.usecase.item.CreateItemUseCase;
+import br.com.fiap.restaurant.application.usecase.item.DeleteItemUseCase;
+import br.com.fiap.restaurant.application.usecase.item.ItemCommand;
+import br.com.fiap.restaurant.application.usecase.item.UpdateItemUseCase;
+import br.com.fiap.restaurant.domain.enums.ItemType;
+import br.com.fiap.restaurant.domain.model.User;
+import br.com.fiap.restaurant.presentation.dto.request.CreateItemRequest;
+import br.com.fiap.restaurant.presentation.dto.request.UpdateItemRequest;
+import br.com.fiap.restaurant.support.Fixtures;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,27 +19,39 @@ import org.springframework.http.HttpStatus;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ItemControllerTest {
-    @Mock ItemServiceImpl service;
+
+    @Mock CreateItemUseCase createItemUseCase;
+    @Mock UpdateItemUseCase updateItemUseCase;
+    @Mock DeleteItemUseCase deleteItemUseCase;
     @InjectMocks ItemController controller;
 
-    @Test void delegatesCreateAndUpdate() {
-        User user = User.builder().id(1L).build();
-        var create = new CreateItemRequest("Soup", null, BigDecimal.TEN, null, null);
-        var update = new UpdateItemRequest("Soup 2", null, null, null, null);
-        ItemResponse response = new ItemResponse(3L, "Soup", null, BigDecimal.TEN, null, "DELIVERY_OR_IN_PERSON");
-        when(service.createItem(create, 2L, user)).thenReturn(response);
-        when(service.updateItem(update, 2L, 3L, user)).thenReturn(response);
-        assertEquals(HttpStatus.CREATED, controller.createItem(2L, create, user).getStatusCode());
-        assertEquals(response, controller.updateItem(2L, 3L, update, user).getBody());
+    private final User user = Fixtures.user(1L, "owner");
+
+    @Test
+    void createsAndUpdatesItem() {
+        var create = new CreateItemRequest("Burger", "Tasty", BigDecimal.TEN, "/img.png", ItemType.JUST_IN_PERSON);
+        var update = new UpdateItemRequest("Pizza", null, null, null, null);
+        when(createItemUseCase.execute(10L, new ItemCommand("Burger", "Tasty", BigDecimal.TEN, "/img.png",
+                ItemType.JUST_IN_PERSON), user)).thenReturn(Fixtures.item(3L, 10L));
+        when(updateItemUseCase.execute(10L, 3L, new ItemCommand("Pizza", null, null, null, null), user))
+                .thenReturn(Fixtures.item(3L, 10L));
+
+        var created = controller.createItem(10L, create, user);
+
+        assertEquals(HttpStatus.CREATED, created.getStatusCode());
+        assertEquals(3L, created.getBody().id());
+        assertEquals(new BigDecimal("25.90"), created.getBody().value());
+        assertEquals(HttpStatus.OK, controller.updateItem(10L, 3L, update, user).getStatusCode());
     }
 
-    @Test void delegatesDelete() {
-        User user = User.builder().id(1L).build();
-        assertEquals(HttpStatus.NO_CONTENT, controller.deleteItem(2L, 3L, user).getStatusCode());
-        verify(service).deleteItem(2L, 3L, user);
+    @Test
+    void deletesItem() {
+        assertEquals(HttpStatus.NO_CONTENT, controller.deleteItem(10L, 3L, user).getStatusCode());
+        verify(deleteItemUseCase).execute(10L, 3L, user);
     }
 }

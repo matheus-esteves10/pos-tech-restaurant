@@ -1,13 +1,25 @@
 package br.com.fiap.restaurant.presentation.controller;
 
-import br.com.fiap.restaurant.application.dto.request.CreateRestaurantRequest;
-import br.com.fiap.restaurant.application.dto.request.UpdateRestaurantRequest;
-import br.com.fiap.restaurant.application.dto.response.RestaurantEmployeeResponse;
-import br.com.fiap.restaurant.application.dto.response.RestaurantResponse;
-import br.com.fiap.restaurant.application.dto.response.RestaurantUserResponse;
-import br.com.fiap.restaurant.application.service.impl.RestaurantServiceImpl;
-import br.com.fiap.restaurant.domain.entity.User;
+import br.com.fiap.restaurant.application.usecase.restaurant.AddRestaurantEmployeeUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.CreateRestaurantCommand;
+import br.com.fiap.restaurant.application.usecase.restaurant.CreateRestaurantUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.GetRestaurantUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.ListRestaurantEmployeesUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.ListRestaurantsUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.RemoveRestaurantEmployeeUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.RestaurantDetails;
+import br.com.fiap.restaurant.application.usecase.restaurant.RestaurantMembership;
+import br.com.fiap.restaurant.application.usecase.restaurant.SetRestaurantOwnerUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.UpdateRestaurantCommand;
+import br.com.fiap.restaurant.application.usecase.restaurant.UpdateRestaurantUseCase;
+import br.com.fiap.restaurant.domain.enums.KitchenType;
 import br.com.fiap.restaurant.domain.enums.UserType;
+import br.com.fiap.restaurant.domain.model.Restaurant;
+import br.com.fiap.restaurant.domain.model.User;
+import br.com.fiap.restaurant.presentation.dto.request.CreateRestaurantRequest;
+import br.com.fiap.restaurant.presentation.dto.request.UpdateRestaurantRequest;
+import br.com.fiap.restaurant.presentation.dto.response.RestaurantResponse;
+import br.com.fiap.restaurant.support.Fixtures;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,64 +27,86 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RestaurantControllerTest {
-    @Mock
-    private RestaurantServiceImpl service;
 
-    @InjectMocks
-    private RestaurantController controller;
+    @Mock ListRestaurantsUseCase listRestaurantsUseCase;
+    @Mock GetRestaurantUseCase getRestaurantUseCase;
+    @Mock ListRestaurantEmployeesUseCase listRestaurantEmployeesUseCase;
+    @Mock CreateRestaurantUseCase createRestaurantUseCase;
+    @Mock UpdateRestaurantUseCase updateRestaurantUseCase;
+    @Mock AddRestaurantEmployeeUseCase addRestaurantEmployeeUseCase;
+    @Mock RemoveRestaurantEmployeeUseCase removeRestaurantEmployeeUseCase;
+    @Mock SetRestaurantOwnerUseCase setRestaurantOwnerUseCase;
+    @InjectMocks RestaurantController controller;
+
+    private final User owner = Fixtures.user(1L, "owner");
+    private final User employee = Fixtures.user(2L, "employee");
+    private final Restaurant restaurant = Fixtures.restaurant(10L, owner, employee);
+    private final RestaurantDetails details = new RestaurantDetails(restaurant, List.of(Fixtures.item(3L, 10L)));
 
     @Test
-    void delegatesRestaurantQueries() {
-        var restaurant = response();
-        var employee = new RestaurantEmployeeResponse("Jane", "jane", null, UserType.RESTAURANT_EMPLOYEE);
-        User user = User.builder().id(1L).build();
-        when(service.getAllRestaurants()).thenReturn(List.of(restaurant));
-        when(service.getRestaurant(2L)).thenReturn(restaurant);
-        when(service.getRestaurantEmployees(2L, user)).thenReturn(List.of(employee));
-        assertEquals(List.of(restaurant), controller.getRestaurants().getBody());
-        assertEquals(restaurant, controller.getRestaurant(2L).getBody());
-        assertEquals(List.of(employee), controller.getRestaurantEmployees(2L, user).getBody());
+    void listsAndGetsRestaurants() {
+        when(listRestaurantsUseCase.execute()).thenReturn(List.of(details));
+        when(getRestaurantUseCase.execute(10L)).thenReturn(details);
+
+        assertEquals(1, controller.getRestaurants().getBody().size());
+        RestaurantResponse response = controller.getRestaurant(10L).getBody();
+        assertEquals(10L, response.id());
+        assertEquals("Cafe", response.name());
+        assertEquals(KitchenType.BRAZILIAN_FOOD, response.kitchenType());
+        assertEquals("Sao Paulo", response.addressRequest().city());
+        assertEquals("Burger", response.items().getFirst().name());
+        assertEquals("DELIVERY_OR_IN_PERSON", response.items().getFirst().itemType());
+    }
+
+    @Test
+    void listsEmployees() {
+        when(listRestaurantEmployeesUseCase.execute(10L, owner)).thenReturn(restaurant.getMembers());
+
+        var employees = controller.getRestaurantEmployees(10L, owner).getBody();
+
+        assertEquals(2, employees.size());
+        assertEquals("owner", employees.getFirst().login());
+        assertEquals(UserType.RESTAURANT_OWNER, employees.getFirst().role());
     }
 
     @Test
     void createsAndUpdatesRestaurant() {
-        User user = User.builder().id(1L).build();
-        var create = new CreateRestaurantRequest("Cafe", "123", null, null, null, java.time.LocalTime.NOON, java.time.LocalTime.MIDNIGHT, null);
+        var create = new CreateRestaurantRequest("Cafe", "123", null, null, null, LocalTime.NOON, LocalTime.MIDNIGHT, null);
         var update = new UpdateRestaurantRequest("New cafe", null, null, null, null, null, null);
-        var restaurant = response();
-        when(service.createRestaurant(create, user)).thenReturn(restaurant);
-        when(service.updateRestaurant(update, user, 2L)).thenReturn(restaurant);
+        when(createRestaurantUseCase.execute(
+                new CreateRestaurantCommand("Cafe", "123", null, null, null, LocalTime.NOON, LocalTime.MIDNIGHT, null), owner))
+                .thenReturn(details);
+        when(updateRestaurantUseCase.execute(10L,
+                new UpdateRestaurantCommand("New cafe", null, null, null, null, null, null), owner)).thenReturn(details);
 
-        assertEquals(HttpStatus.CREATED, controller.createRestaurant(create, user).getStatusCode());
-        assertEquals(restaurant, controller.updateRestaurant(update, user, 2L).getBody());
+        assertEquals(HttpStatus.CREATED, controller.createRestaurant(create, owner).getStatusCode());
+        assertEquals(10L, controller.updateRestaurant(update, owner, 10L).getBody().id());
     }
 
     @Test
-    void addsAndRemovesEmployee() {
-        User user = User.builder().id(1L).build();
-        var employee = new RestaurantUserResponse("Cafe", "staff", UserType.RESTAURANT_EMPLOYEE);
-        when(service.addUser(2L, user, 3L)).thenReturn(employee);
-        when(service.removeUser(2L, user, 3L)).thenReturn(employee);
+    void managesEmployeesAndOwnership() {
+        when(addRestaurantEmployeeUseCase.execute(10L, 2L, owner))
+                .thenReturn(new RestaurantMembership(restaurant, employee, UserType.RESTAURANT_EMPLOYEE));
+        when(removeRestaurantEmployeeUseCase.execute(10L, 2L, owner))
+                .thenReturn(new RestaurantMembership(restaurant, employee, null));
 
-        assertEquals(employee, controller.addEmployee(2L, user, 3L).getBody());
-        assertEquals(employee, controller.removeEmployee(2L, user, 3L).getBody());
-    }
+        var added = controller.addEmployee(10L, owner, 2L).getBody();
+        var removed = controller.removeEmployee(10L, owner, 2L).getBody();
 
-    @Test
-    void promotesEmployeeToOwner() {
-        User user = User.builder().id(1L).build();
-        assertEquals(HttpStatus.OK, controller.setUserAsOwner(2L, user, 3L).getStatusCode());
-        verify(service).setAsOwner(2L, user, 3L);
-    }
-
-    private RestaurantResponse response() {
-        return new RestaurantResponse(2L, "Cafe", "123", null, null, null, null, null, null, List.of());
+        assertEquals("Cafe", added.restaurantName());
+        assertEquals("employee", added.userLogin());
+        assertEquals(UserType.RESTAURANT_EMPLOYEE, added.userType());
+        assertNull(removed.userType());
+        assertEquals(HttpStatus.OK, controller.setUserAsOwner(10L, owner, 2L).getStatusCode());
+        verify(setRestaurantOwnerUseCase).execute(10L, 2L, owner);
     }
 }

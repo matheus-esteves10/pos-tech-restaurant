@@ -1,13 +1,21 @@
 package br.com.fiap.restaurant.presentation.controller;
 
 import br.com.fiap.restaurant.presentation.swagger.ApiErrorExamples;
-import br.com.fiap.restaurant.application.dto.request.CreateRestaurantRequest;
-import br.com.fiap.restaurant.application.dto.request.UpdateRestaurantRequest;
-import br.com.fiap.restaurant.application.dto.response.RestaurantEmployeeResponse;
-import br.com.fiap.restaurant.application.dto.response.RestaurantResponse;
-import br.com.fiap.restaurant.application.dto.response.RestaurantUserResponse;
-import br.com.fiap.restaurant.domain.entity.User;
-import br.com.fiap.restaurant.application.service.impl.RestaurantServiceImpl;
+import br.com.fiap.restaurant.presentation.dto.request.CreateRestaurantRequest;
+import br.com.fiap.restaurant.presentation.dto.request.UpdateRestaurantRequest;
+import br.com.fiap.restaurant.presentation.dto.response.RestaurantEmployeeResponse;
+import br.com.fiap.restaurant.presentation.dto.response.RestaurantResponse;
+import br.com.fiap.restaurant.presentation.dto.response.RestaurantUserResponse;
+import br.com.fiap.restaurant.domain.model.User;
+import br.com.fiap.restaurant.application.usecase.restaurant.AddRestaurantEmployeeUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.CreateRestaurantUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.GetRestaurantUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.ListRestaurantEmployeesUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.ListRestaurantsUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.RemoveRestaurantEmployeeUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.SetRestaurantOwnerUseCase;
+import br.com.fiap.restaurant.application.usecase.restaurant.UpdateRestaurantUseCase;
+import br.com.fiap.restaurant.presentation.presenter.RestaurantPresenter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -40,7 +48,14 @@ import static br.com.fiap.restaurant.presentation.common.ApiPaths.API_V1;
 @Tag(name = "Restaurant")
 public class RestaurantController {
 
-    private final RestaurantServiceImpl restaurantService;
+    private final ListRestaurantsUseCase listRestaurantsUseCase;
+    private final GetRestaurantUseCase getRestaurantUseCase;
+    private final ListRestaurantEmployeesUseCase listRestaurantEmployeesUseCase;
+    private final CreateRestaurantUseCase createRestaurantUseCase;
+    private final UpdateRestaurantUseCase updateRestaurantUseCase;
+    private final AddRestaurantEmployeeUseCase addRestaurantEmployeeUseCase;
+    private final RemoveRestaurantEmployeeUseCase removeRestaurantEmployeeUseCase;
+    private final SetRestaurantOwnerUseCase setRestaurantOwnerUseCase;
 
     @Operation(summary = "List all restaurants")
     @ApiResponses({
@@ -50,7 +65,7 @@ public class RestaurantController {
     })
     @GetMapping
     public ResponseEntity<List<RestaurantResponse>> getRestaurants() {
-        final List<RestaurantResponse> restaurants = restaurantService.getAllRestaurants();
+        final List<RestaurantResponse> restaurants = RestaurantPresenter.toResponse(listRestaurantsUseCase.execute());
         return ResponseEntity.ok(restaurants);
     }
 
@@ -65,7 +80,8 @@ public class RestaurantController {
     })
     @GetMapping("/{restaurantId}")
     public ResponseEntity<RestaurantResponse> getRestaurant(@PathVariable Long restaurantId) {
-        final RestaurantResponse restaurantResponse = restaurantService.getRestaurant(restaurantId);
+        final RestaurantResponse restaurantResponse = RestaurantPresenter.toResponse(
+                getRestaurantUseCase.execute(restaurantId));
         return ResponseEntity.ok(restaurantResponse);
     }
 
@@ -83,8 +99,9 @@ public class RestaurantController {
     })
     @GetMapping("/{restaurantId}/employee")
     public ResponseEntity<List<RestaurantEmployeeResponse>> getRestaurantEmployees(@PathVariable Long restaurantId,
-                                                                                   @AuthenticationPrincipal User authenticatedUser) {
-        final List<RestaurantEmployeeResponse> employees = restaurantService.getRestaurantEmployees(restaurantId, authenticatedUser);
+                                                                                   @AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        final List<RestaurantEmployeeResponse> employees = RestaurantPresenter.toEmployeeResponse(
+                listRestaurantEmployeesUseCase.execute(restaurantId, authenticatedUser));
         return ResponseEntity.ok(employees);
     }
 
@@ -102,8 +119,9 @@ public class RestaurantController {
     })
     @PostMapping
     public ResponseEntity<RestaurantResponse> createRestaurant(@Valid @RequestBody CreateRestaurantRequest restaurantRequest,
-                                                               @AuthenticationPrincipal User authenticatedUser) {
-        final RestaurantResponse restaurantResponse = restaurantService.createRestaurant(restaurantRequest, authenticatedUser);
+                                                               @AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        final RestaurantResponse restaurantResponse = RestaurantPresenter.toResponse(
+                createRestaurantUseCase.execute(restaurantRequest.toCommand(), authenticatedUser));
         return ResponseEntity.status(HttpStatus.CREATED).body(restaurantResponse);
     }
 
@@ -124,10 +142,10 @@ public class RestaurantController {
     })
     @PatchMapping("/{restaurantId}")
     public ResponseEntity<RestaurantResponse> updateRestaurant(@Valid @RequestBody UpdateRestaurantRequest restaurantRequest,
-                                                               @AuthenticationPrincipal User authenticatedUser,
+                                                               @AuthenticationPrincipal(expression = "user") User authenticatedUser,
                                                                @PathVariable Long restaurantId) {
-        final RestaurantResponse restaurantResponse = restaurantService.updateRestaurant(restaurantRequest,
-                authenticatedUser, restaurantId);
+        final RestaurantResponse restaurantResponse = RestaurantPresenter.toResponse(
+                updateRestaurantUseCase.execute(restaurantId, restaurantRequest.toCommand(), authenticatedUser));
         return ResponseEntity.ok(restaurantResponse);
     }
 
@@ -145,9 +163,10 @@ public class RestaurantController {
     })
     @PostMapping("/{restaurantId}/employee/{userId}")
     public ResponseEntity<RestaurantUserResponse> addEmployee(@PathVariable Long restaurantId,
-                                                              @AuthenticationPrincipal User authenticatedUser,
+                                                              @AuthenticationPrincipal(expression = "user") User authenticatedUser,
                                                               @PathVariable Long userId) {
-        final RestaurantUserResponse restaurantUserResponse = restaurantService.addUser(restaurantId, authenticatedUser, userId);
+        final RestaurantUserResponse restaurantUserResponse = RestaurantPresenter.toMembershipResponse(
+                addRestaurantEmployeeUseCase.execute(restaurantId, userId, authenticatedUser));
         return ResponseEntity.ok(restaurantUserResponse);
     }
 
@@ -165,9 +184,10 @@ public class RestaurantController {
     })
     @DeleteMapping("/{restaurantId}/employee/{userId}")
     public ResponseEntity<RestaurantUserResponse> removeEmployee(@PathVariable Long restaurantId,
-                                                                 @AuthenticationPrincipal User authenticatedUser,
+                                                                 @AuthenticationPrincipal(expression = "user") User authenticatedUser,
                                                                  @PathVariable Long userId) {
-        final RestaurantUserResponse restaurantUserResponse = restaurantService.removeUser(restaurantId, authenticatedUser, userId);
+        final RestaurantUserResponse restaurantUserResponse = RestaurantPresenter.toMembershipResponse(
+                removeRestaurantEmployeeUseCase.execute(restaurantId, userId, authenticatedUser));
         return ResponseEntity.ok(restaurantUserResponse);
     }
 
@@ -185,9 +205,9 @@ public class RestaurantController {
     })
     @PatchMapping("/{restaurantId}/owner/{userId}")
     public ResponseEntity<Void> setUserAsOwner(@PathVariable Long restaurantId,
-                                               @AuthenticationPrincipal User authenticatedUser,
+                                               @AuthenticationPrincipal(expression = "user") User authenticatedUser,
                                                @PathVariable Long userId) {
-        restaurantService.setAsOwner(restaurantId, authenticatedUser, userId);
+        setRestaurantOwnerUseCase.execute(restaurantId, userId, authenticatedUser);
         return ResponseEntity.ok().build();
     }
 

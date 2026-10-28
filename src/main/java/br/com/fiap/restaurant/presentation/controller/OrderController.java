@@ -1,10 +1,14 @@
 package br.com.fiap.restaurant.presentation.controller;
 
 import br.com.fiap.restaurant.presentation.swagger.ApiErrorExamples;
-import br.com.fiap.restaurant.application.dto.request.CreateOrderRequest;
-import br.com.fiap.restaurant.application.dto.response.OrderResponse;
-import br.com.fiap.restaurant.domain.entity.User;
-import br.com.fiap.restaurant.application.service.impl.OrderServiceImpl;
+import br.com.fiap.restaurant.presentation.dto.request.CreateOrderRequest;
+import br.com.fiap.restaurant.presentation.dto.response.OrderResponse;
+import br.com.fiap.restaurant.domain.model.User;
+import br.com.fiap.restaurant.application.usecase.order.CancelOrderUseCase;
+import br.com.fiap.restaurant.application.usecase.order.CreateOrderUseCase;
+import br.com.fiap.restaurant.application.usecase.order.DeliverOrderUseCase;
+import br.com.fiap.restaurant.application.usecase.order.ListRestaurantOrdersUseCase;
+import br.com.fiap.restaurant.presentation.presenter.OrderPresenter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -36,7 +40,10 @@ import static br.com.fiap.restaurant.presentation.common.ApiPaths.API_V1;
 @Tag(name = "Order")
 public class OrderController {
 
-    private final OrderServiceImpl orderService;
+    private final CreateOrderUseCase createOrderUseCase;
+    private final CancelOrderUseCase cancelOrderUseCase;
+    private final DeliverOrderUseCase deliverOrderUseCase;
+    private final ListRestaurantOrdersUseCase listRestaurantOrdersUseCase;
 
     @Operation(summary = "Create a new order for a restaurant")
     @ApiResponses({
@@ -53,8 +60,9 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@PathVariable Long restaurantId,
                                                       @Valid @RequestBody CreateOrderRequest request,
-                                                      @AuthenticationPrincipal User authenticatedUser) {
-        final OrderResponse orderResponse = orderService.createOrder(request, restaurantId, authenticatedUser);
+                                                      @AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        final OrderResponse orderResponse = OrderPresenter.toResponse(
+                createOrderUseCase.execute(restaurantId, request.itemIds(), authenticatedUser));
         return ResponseEntity.status(HttpStatus.CREATED).body(orderResponse);
     }
 
@@ -76,8 +84,8 @@ public class OrderController {
     @PatchMapping("/{orderId}/cancel")
     public ResponseEntity<Void> cancelOrder(@PathVariable Long restaurantId,
                                             @PathVariable Long orderId,
-                                            @AuthenticationPrincipal User authenticatedUser) {
-        orderService.cancelOrder(restaurantId, orderId, authenticatedUser);
+                                            @AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        cancelOrderUseCase.execute(restaurantId, orderId, authenticatedUser);
         return ResponseEntity.noContent().build();
     }
 
@@ -99,8 +107,8 @@ public class OrderController {
     @PatchMapping("/{orderId}/deliver")
     public ResponseEntity<Void> deliverOrder(@PathVariable Long restaurantId,
                                              @PathVariable Long orderId,
-                                             @AuthenticationPrincipal User authenticatedUser) {
-        orderService.deliverOrder(restaurantId, orderId, authenticatedUser);
+                                             @AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        deliverOrderUseCase.execute(restaurantId, orderId, authenticatedUser);
         return ResponseEntity.noContent().build();
     }
 
@@ -118,8 +126,9 @@ public class OrderController {
     })
     @GetMapping
     public ResponseEntity<List<OrderResponse>> getOrders(@PathVariable Long restaurantId,
-                                                         @AuthenticationPrincipal User authenticatedUser) {
-        final List<OrderResponse> orders = orderService.getOrdersByRestaurant(restaurantId, authenticatedUser);
+                                                         @AuthenticationPrincipal(expression = "user") User authenticatedUser) {
+        final List<OrderResponse> orders = OrderPresenter.toResponse(
+                listRestaurantOrdersUseCase.execute(restaurantId, authenticatedUser));
         return ResponseEntity.ok(orders);
     }
 }
