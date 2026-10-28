@@ -132,8 +132,8 @@ Dockerfile                # Imagem da aplicação
 
 ## Pré-requisitos
 
-- **Java 25** (o build não compila com versões anteriores)
-- **Docker** e Docker Compose
+- **Docker** e Docker Compose: suficientes para subir a aplicação (opção A)
+- **Java 25**: necessário apenas para rodar localmente ou executar os testes (o build não compila com versões anteriores)
 - Maven não é necessário: use o wrapper incluído (`./mvnw` ou `mvnw.cmd`)
 
 ---
@@ -166,15 +166,13 @@ Variáveis lidas pela aplicação:
 
 ### Opção A: tudo com Docker Compose
 
-O `Dockerfile` copia o jar de `target/`, então gere-o antes de subir os containers:
-
-```bash
-./mvnw clean package -DskipTests
-```
+Basta o Docker; não é preciso ter Java nem Maven instalados. O `Dockerfile` é multi-stage: compila o projeto dentro de uma imagem com JDK 25 e gera uma imagem final enxuta, só com a JRE e o jar, executando com um usuário sem privilégios de root.
 
 ```bash
 docker compose up -d --build
 ```
+
+O primeiro build baixa as dependências e leva cerca de 1 minuto. Os seguintes reaproveitam o cache do Maven. Rode o mesmo comando depois de alterar o código para reconstruir a imagem.
 
 - API: http://localhost:8080
 - Swagger UI: http://localhost:8080/swagger-ui.html
@@ -412,8 +410,6 @@ O token expira em 1 hora; depois disso, execute `Login` novamente.
 **`release version 25 not supported`**: o Maven está usando um JDK antigo. Aponte o `JAVA_HOME` para um JDK 25.
 
 **`Cannot load driver class: org.h2.Driver` nos testes**: há arquivos antigos em `target/`. Rode `./mvnw clean verify` em vez de apenas `verify`.
-
-**`COPY failed: target/restaurant-0.0.1-SNAPSHOT.jar not found` no Docker**: gere o jar antes (`./mvnw clean package -DskipTests`).
 
 **`Unable to establish loopback connection` ao iniciar no Windows**: o JDK não conseguiu criar o socket interno na pasta temporária. Informe outra pasta:
 
